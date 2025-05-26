@@ -84,7 +84,7 @@
   }
 
   function evaluateAll() {
-    evaluateLogic([data.props.slice(0, -1).concat(data.conds), data.props.at(-1)])
+    evaluateLogic(data.props.slice(0, -1).concat(data.conds), data.props.at(-1))
   }
 
 </script>
@@ -97,13 +97,13 @@
 </div>
 
 <div>
-Proposition: <input type="text" id="prop_input" value="all crows are black"></input> is <button id="prop_true" onclick="addProp(false)">TRUE</button> / <button id="prop_false" onclick="addProp(true)">FALSE</button>
+Proposition: <input type="text" id="prop_input" value="all_crows_are_black"></input> is <button id="prop_true" onclick="addProp(false)">TRUE</button> / <button id="prop_false" onclick="addProp(true)">FALSE</button>
 </div>
 <div>
   <table id="list_props">
     <thead><tr><th>True?</th><th>Proposition</th></th><th>Actions</th></tr></thead>
     <tbody>
-      <tr><td>False</td><td>all ravens are black</td><td></td></tr>
+      <tr><td>False</td><td>all_ravens_are_black</td><td></td></tr>
     </tbody>
   </table>
 </div>
@@ -113,19 +113,19 @@ Proposition: <input type="text" id="prop_input" value="all crows are black"></in
     <option value="true">If</option>
     <option value="false">If not</option>
   </input> 
-  <input type="text" id="cond_ante" value="all crows are black"></input> 
+  <input type="text" id="cond_ante" value="all_crows_are_black"></input> 
   <select id="cond_cons_true" value="then">
     <option value="true">then</option>
     <option value="false">then not</option>
   </input> 
-  <input type="text" id="cond_cons" value="all ravens are black"></input>
+  <input type="text" id="cond_cons" value="all_ravens_are_black"></input>
   <button id="cond_add" onclick="addCond()">ADD</button>
 </div>
 <div>
   <table id="list_conds">
     <thead><tr><th>Condition</th></th><th>Actions</th></tr></thead>
     <tbody>
-      <tr><td>If "all crows are black" then <span class="false">not</span> "all ravens are black"</td><td></td></tr>
+      <tr><td>If "all_crows_are_black" then <span class="false">not</span> "all_ravens_are_black"</td><td></td></tr>
     </tbody>
   </table>
 </div>
