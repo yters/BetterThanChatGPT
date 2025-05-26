@@ -32,7 +32,7 @@
 <script src="evaluateLogic.js"></script> 
 <script>
   var data = {};
-  console.log("'" + document.cookie + "'");
+  //console.log("'" + document.cookie + "'");
   let result = document.cookie.match(new RegExp('data=([^;]+)'));
   if (result) {
     data = JSON.parse(result[1]);
@@ -44,7 +44,7 @@
   function setCookies() {
     document.cookie = ["data", '=', JSON.stringify(data), ';', window.location.host.toString(), ';'].join('');
     console.log("'" + ["data", '=', JSON.stringify(data), ';', window.location.host.toString(), ';'].join('') + "'");
-    console.log("'" + document.cookie + "'");
+    //console.log("'" + document.cookie + "'");
   }
 
   function updateProps() {
@@ -70,21 +70,21 @@
   }
   
   function addProp(negated) {
-    let prop = {negated: negated, name: document.getElementById('prop_input').value}
+    let prop = new Proposition(negated, document.getElementById('prop_input').value);
     data.props.push(prop);
     updateProps();
   }
 
   function addCond() {
-    let ante = {negated: document.getElementById('cond_ante_true').value == "true" ? false : true, name: document.getElementById('cond_ante').value}
-    let cons = {negated: document.getElementById('cond_cons_true').value == "true" ? false : true, name: document.getElementById('cond_cons').value}
-    let cond = {antecedent: ante, consequent: cons}
+    let ante = new Proposition(document.getElementById('cond_ante_true').value == "true" ? false : true, document.getElementById('cond_ante').value);
+    let cons = new Proposition(document.getElementById('cond_cons_true').value == "true" ? false : true, document.getElementById('cond_cons').value);
+    let cond = new Conditional(ante, cons);
     data.conds.push(cond);
     updateConds();
   }
 
   function evaluateAll() {
-    evaluateLogic([data.props[0], data.conds[0], data.props.at(-1)])
+    evaluateLogic([data.props.slice(0, -1).concat(data.conds), data.props.at(-1)])
   }
 
 </script>
