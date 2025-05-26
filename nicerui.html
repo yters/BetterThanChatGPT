@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  .announcement {
+    border: 1px solid gray;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    background-color: #d0f0f6;
+    text-align: left;
+    padding: 8px;
+  }
+  #prop_true {
+    background-color: lightgreen
+  }
+  #prop_false {
+    background-color: pink
+  }
+  table, th, td {
+    border: 1px solid;
+  }
+  span.false {
+    color: darkred;
+  }
+</style>
+<script src="functions.js"></script> 
+<script>
+function evaluateLogic() {
+  alert("logic'd!");
+}
+</script>
+</head>
+<body>
+
+<div class="announcement">
+  <h1>Evaluate Logic</h1>
+  <p></p>
+</div>
+
+<div id="add_prop">
+Proposition: <input type="text" id="prop_input" value="all crows are black"></input> is <button id="prop_true" onclick="">TRUE</button> / <button id="prop_false" onclick="">FALSE</button>
+</div>
+<div id="list_props">
+  <table>
+    <thead><tr><th>True?</th><th>Proposition</th></th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr><td>False</td><td>all ravens are black</td><td></td></tr>
+    </tbody>
+  </table>
+</div>
+<div id="add_cond">
+  Condition: 
+  <select id="cond_ante_true" value="If">
+    <option value="true">If</option>
+    <option value="false">If not</option>
+  </input> 
+  <input type="text" id="cond_ante" value="all crows are black"></input> 
+  <select id="cond_cons_true" value="then">
+    <option value="true">then</option>
+    <option value="false">then not</option>
+  </input> 
+  <input type="text" id="cond_cons" value="all ravens are black"></input>
+  <button id="cond_add" onclick="">ADD</button>
+</div>
+<div id="list_conds">
+  <table>
+    <thead><tr><th>Condition</th></th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr><td>If "all crows are black" then <span class="false">not</span> "all ravens are black"</td><td></td></tr>
+    </tbody>
+  </table>
+</div>
+<button class="evaluate" onclick="evaluateLogic();">Evaluate!</button>
+</body>
+</html>
