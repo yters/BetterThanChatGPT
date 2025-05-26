@@ -98,6 +98,9 @@
   }
 
   function evaluateAll() {
+    if (data.props.length < 1 || data.props.length + data.conds.length < 2) {
+      alert("At least one proposition (ie. the conclusion) and at least one other proposition or condition are required.");
+    }
     evaluateLogic(data.props.slice(0, -1).concat(data.conds), data.props.at(-1))
   }
 
