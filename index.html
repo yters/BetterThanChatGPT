@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
 
+<style>
 body {
 margin-left: 200px
 }
@@ -17,18 +17,54 @@ margin-left: 200px
   padding: 8px;
 }
 </style>
+
 <script src="functions.js"></script> 
 <script>
 function evaluateLogic() {
-let variables = new Map();
-variables.set(document.getElementsByName("premise1Variable")[0].value, false);
-variables.set(document.getElementsByName("rule1Antecedent")[0].value, false);
-variables.set(document.getElementsByName("rule1Consequent")[0].value, false);
+  let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
+  let p1v_name = document.getElementsByName("premise1Variable")[0].value;
+  let r1an = document.getElementsByName("rule1AntecedentNegated")[0].checked;
+  let r1a_name = document.getElementsByName("rule1Antecedent")[0].value;
+  let r1cn = document.getElementsByName("rule1ConsequentNegated")[0].checked;
+  let r1c_name = document.getElementsByName("rule1Consequent")[0].value;
 
-let result = !document.getElementsByName("premise1VariableNegated")[0].value & variables.get(document.getElementsByName("premise1Variable"));
-alert(result);
+  let variables = new Map();
+  contradiction = true;
+  tautology = true;
+  for(let p1v_val = 0; p1v_val <= 1; p1v_val++) {
+    for(let r1a_val = 0; r1a_val <= 1; r1a_val++) {
+      for(let r1c_val = 0; r1c_val <= 1; r1c_val++) {
+        console.log("p1v_val: " + p1v_val + " r1a_val: " + r1a_val + " r1c_val: " + r1c_val);
+        variables.set(p1v_name, p1v_val);
+        variables.set(r1a_name, r1a_val);
+        variables.set(r1c_name, r1c_val);
+        
+        let p1v = variables.get(p1v_name);
+        console.log("p1vn: " + p1vn + " p1v: " + p1v);
+        let p1 = !p1vn && p1v;
+        console.log("p1: " + p1);
+        
+        let r1a = variables.get(r1a_name);
+        console.log("r1an: " + r1an + " r1a: " + r1a);
+        let r1c = variables.get(r1c_name);
+        console.log("r1cn: " + r1cn + " r1c: " + r1c);
+        let r1 = !(!r1an && r1a) || (!r1cn && r1c);
+        console.log("r1: " + r1);
+        
+        let result = p1 && r1;
+        console.log("result: " + result);
+        if (result) {
+          contradiction = false;
+        } else {
+          tautology = false;
+        }
+      }
+    }
+  }
+  alert("contradiction: " + contradiction + "\ntautology: " + tautology);
 }
 </script>
+
 </head>
 <body>
 
