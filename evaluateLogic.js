@@ -66,38 +66,47 @@ function extractPartsAndEvaluateLogic() {
   let c_name = document.getElementsByName("conclusion")[0].value;
   let c_struct = new Conclusion(cn, c_name);
     
-  argument_struct = [
+  axiom_struct = [
     p1_struct,
-    r1_struct,
-    c_struct
+    r1_struct
   ];
 
-  variables = [...new Set(argument_struct.map(l => l.variables()).flat())];
+  var variable_instances = axiom_struct.map(l => l.variables()).concat(c_struct.variables());
+  console.log("variable instances: " + variable_instances);
+  var variables = [...new Set(variable_instances.flat())];
   console.log("variables: " + variables);
-  logic_expression = argument_struct.map(l => l.logicExpression()).join("&&");
+  var logic_expression = "!(" + axiom_struct.map(l => l.logicExpression()).join("&&") + ")||(" + c_struct.logicExpression() + ")";
   console.log("logic expression: " + logic_expression);
   evaluateLogic(variables, logic_expression);
 }
 
 function evaluateLogic(variables, logic_expression) {
-  contradiction = true;
-  tautology = true;
-  for (let i = 0; i < 2^variables.length; i++) {
+  var contradiction = true;
+  var tautology = true;
+  iterations = 2**variables.length;
+  console.log("iterations: " + iterations);
+  for (let i = 0; i < iterations; i++) {
+    console.log("i: " + i);
     i_tmp = i;
     for (let j = 0; j < variables.length; j++) {
-      this[variables[i]] = i_tmp % 2;
+      var_val = i_tmp % 2;
+      this[variables[j]] = var_val;
+      console.log(variables[j] + " " + var_val);
       i_tmp = Math.floor(i_tmp/2);
     }
-    if (eval(logic_expression)) {
+    result = eval(logic_expression);
+    console.log("result: " + result);
+    if (result) {
       contradiction = false;
     } else {
       tautology = false;
     }
+    console.log("===================");
   }
-  message = "contradiction: " + contradiction + "\ntautology: " + tautology "\n";
+  var message = "contradiction: " + contradiction + "\ntautology: " + tautology + "\n";
   if (tautology) {
     message += "conclusion follows";
   }
-  alert(message)
+  console.log(message);
 }
 
