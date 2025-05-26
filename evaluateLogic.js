@@ -76,75 +76,28 @@ function extractPartsAndEvaluateLogic() {
   console.log("variables: " + variables);
   logic_expression = argument_struct.map(l => l.logicExpression()).join("&&");
   console.log("logic expression: " + logic_expression);
-  evaluateLogic(argument_struct);
+  evaluateLogic(variables, logic_expression);
 }
 
-function evaluateLogic(argument_struct) {
-  let p1_struct = argument_struct[0];
-  let p1vn = p1_struct.negated;
-  let p1v_name = p1_struct.name;
-  
-  let r1_struct = argument_struct[1];
-
-  let r1a_struct = r1_struct.antecedent;
-  let r1an = r1a_struct.negated;
-  let r1a_name = r1a_struct.name;
-
-  let r1c_struct = r1_struct.consequent;
-  let r1cn = r1c_struct.negated;
-  let r1c_name = r1c_struct.name;
-
-  let c_struct = argument_struct[2];
-  let cn = c_struct.negated;
-  let c_name = c_struct.name;
-
-  let variables = new Map();
+function evaluateLogic(variables, logic_expression) {
   contradiction = true;
   tautology = true;
-  for(let p1v_val = 0; p1v_val <= 1; p1v_val++) {
-    for(let r1a_val = 0; r1a_val <= 1; r1a_val++) {
-      for(let r1c_val = 0; r1c_val <= 1; r1c_val++) {
-        for(let c_val = 0; c_val <= 1; c_val++) {
-          console.log("p1v_val: " + p1v_val + " r1a_val: " + r1a_val + " r1c_val: " + r1c_val + " c: " + c_val);
-          variables.set(p1v_name, p1v_val);
-          variables.set(r1a_name, r1a_val);
-          variables.set(r1c_name, r1c_val);
-          variables.set(c_name, c_val);
-          
-          let p1v = variables.get(p1v_name);
-          console.log("p1vn: " + p1vn + " p1v: " + p1v);
-          let p1 = !p1vn && p1v;
-          console.log("p1: " + p1);
-          
-          let r1a = variables.get(r1a_name);
-          console.log("r1an: " + r1an + " r1a: " + r1a);
-          let r1c = variables.get(r1c_name);
-          console.log("r1cn: " + r1cn + " r1c: " + r1c);
-          let r1 = !(!r1an && r1a) || (!r1cn && r1c);
-          console.log("r1: " + r1);
-          
-          let axioms = p1 && r1;
-          console.log("axioms: " + axioms);
-  
-          let c = variables.get(c_name);
-          let result = !axioms || (!cn && c);
-          console.log("result: " + result);
-          console.log("========================");
-          if (result) {
-            contradiction = false;
-          } else {
-            tautology = false;
-          }
-        }
-      }
+  for (let i = 0; i < 2^variables.length; i++) {
+    i_tmp = i;
+    for (let j = 0; j < variables.length; j++) {
+      this[variables[i]] = i_tmp % 2;
+      i_tmp = Math.floor(i_tmp/2);
+    }
+    if (eval(logic_expression)) {
+      contradiction = false;
+    } else {
+      tautology = false;
     }
   }
-  message = "contradiction: " + contradiction + "\ntautology: " + tautology + "\n";
+  message = "contradiction: " + contradiction + "\ntautology: " + tautology "\n";
   if (tautology) {
-    message += "conclusion follows from premises";
-  } else {
-    message += "conclusion does not follow from premises";
+    message += "conclusion follows";
   }
-  alert(message);
+  alert(message)
 }
 
