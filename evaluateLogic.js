@@ -66,21 +66,25 @@ function extractPartsAndEvaluateLogic() {
   let c_name = document.getElementsByName("conclusion")[0].value;
   let c_struct = new Conclusion(cn, c_name);
     
-  axiom_struct = [
+  axioms_struct = [
     p1_struct,
     r1_struct
   ];
 
-  var variable_instances = axiom_struct.map(l => l.variables()).concat(c_struct.variables());
+  evaluateLogic(axioms_struct, c_struct)
+}
+
+function evaluateLogic(axioms, conclusion) {
+  var variable_instances = axioms.map(l => l.variables()).concat(conclusion.variables());
   console.log("variable instances: " + variable_instances);
   var variables = [...new Set(variable_instances.flat())];
   console.log("variables: " + variables);
-  var logic_expression = "!(" + axiom_struct.map(l => l.logicExpression()).join("&&") + ")||(" + c_struct.logicExpression() + ")";
+  var logic_expression = "!(" + axioms.map(l => l.logicExpression()).join("&&") + ")||(" + conclusion.logicExpression() + ")";
   console.log("logic expression: " + logic_expression);
-  evaluateLogic(variables, logic_expression);
+  evaluateLogicExpression(variables, logic_expression);
 }
 
-function evaluateLogic(variables, logic_expression) {
+function evaluateLogicExpression(variables, logic_expression) {
   var contradiction = true;
   var tautology = true;
   iterations = 2**variables.length;
