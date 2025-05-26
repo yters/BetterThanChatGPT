@@ -111,7 +111,10 @@
 </div>
 
 <div>
-Proposition: <input type="text" id="prop_input" value="all_crows_are_black"></input> is <button id="prop_true" onclick="addProp(false)">TRUE</button> / <button id="prop_false" onclick="addProp(true)">FALSE</button>
+<p>
+  Proposition: <input type="text" id="prop_input" value="all_crows_are_black"></input> is 
+  <button id="prop_true" onclick="addProp(false)">TRUE</button> / <button id="prop_false" onclick="addProp(true)">FALSE</button>
+</p>
 </div>
 <div>
   <table id="list_props">
@@ -122,18 +125,20 @@ Proposition: <input type="text" id="prop_input" value="all_crows_are_black"></in
   </table>
 </div>
 <div>
-  Condition: 
-  <select id="cond_ante_true" value="If">
-    <option value="true">If</option>
-    <option value="false">If not</option>
-  </input> 
-  <input type="text" id="cond_ante" value="all_crows_are_black"></input> 
-  <select id="cond_cons_true" value="then">
-    <option value="true">then</option>
-    <option value="false">then not</option>
-  </input> 
-  <input type="text" id="cond_cons" value="all_ravens_are_black"></input>
-  <button id="cond_add" onclick="addCond()">ADD</button>
+  <p>
+    Condition: 
+    <select id="cond_ante_true" value="If">
+      <option value="true">If</option>
+      <option value="false">If not</option>
+    </input> 
+    <input type="text" id="cond_ante" value="all_crows_are_black"></input> 
+    <select id="cond_cons_true" value="then">
+      <option value="true">then</option>
+      <option value="false">then not</option>
+    </input> 
+    <input type="text" id="cond_cons" value="all_ravens_are_black"></input>
+    <button id="cond_add" onclick="addCond()">ADD</button>
+  </p>
 </div>
 <div>
   <table id="list_conds">
