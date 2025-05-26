@@ -17,6 +17,32 @@ class Proposition {
   }
 }
 
+class Conjunction {
+  propositions;
+  constructor(propositions) {
+    this.propositions = propositions;
+  }
+  logicExpression() {
+    return "(" + this.propositions.map(i => i.logicExpression()).join("&&") + ")";
+  }
+  variables() {
+    return this.propositions.map(i => i.variables()).flat();
+  }
+}
+
+class Disjunction {
+  propositions;
+  constructor(propositions) {
+    this.propositions = propositions;
+  }
+  logicExpression() {
+    return "(" + this.propositions.map(i => i.logicExpression()).join("||") + ")";
+  }
+  variables() {
+    return this.propositions.map(i => i.variables()).flat();
+  }
+}
+
 class Conditional {
   antecedent;
   consequent;
@@ -28,7 +54,7 @@ class Conditional {
     return "(!(" + this.antecedent.logicExpression() + ")||(" + this.consequent.logicExpression() + "))"
   }
   variables() {
-    return [this.antecedent.name, this.consequent.name];
+    return [this.antecedent.variables(), this.consequent.variables()].flat();
   }
 }
 
@@ -55,13 +81,20 @@ function extractPartsAndEvaluateLogic() {
   let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
   let p1v_name = document.getElementsByName("premise1Variable")[0].value;
   let p1_struct = new Proposition(p1vn, p1v_name);
+
   let r1an = document.getElementsByName("rule1AntecedentNegated")[0].checked;
   let r1a_name = document.getElementsByName("rule1Antecedent")[0].value;
   let r1a_struct = new Proposition(r1an, r1a_name);
+  let r1ac_struct = new Conjunction([r1a_struct]);
+  console.log("r1ac_struct propositions: " + r1ac_struct.propositions);
+
   let r1cn = document.getElementsByName("rule1ConsequentNegated")[0].checked;
   let r1c_name = document.getElementsByName("rule1Consequent")[0].value;
   let r1c_struct = new Proposition(r1cn, r1c_name);
-  let r1_struct = new Conditional(r1a_struct, r1c_struct);
+  let r1cd_struct = new Disjunction([r1c_struct]);
+
+  let r1_struct = new Conditional(r1ac_struct, r1cd_struct);
+
   let cn = document.getElementsByName("conclusionNegated")[0].checked;
   let c_name = document.getElementsByName("conclusion")[0].value;
   let c_struct = new Conclusion(cn, c_name);
