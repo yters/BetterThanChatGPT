@@ -59,7 +59,7 @@ function evaluateLogic() {
           console.log("axioms: " + axioms);
   
           let c = variables.get(c_name);
-          let result = !axioms || c;
+          let result = !axioms || (!cn && c);
           if (result) {
             contradiction = false;
           } else {
