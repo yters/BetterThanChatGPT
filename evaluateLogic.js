@@ -1,34 +1,59 @@
 function extractPartsAndEvaluateLogic() {
   let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
   let p1v_name = document.getElementsByName("premise1Variable")[0].value;
+  let p1_struct = {
+    negated: p1vn,
+    name: p1v_name
+  };
   let r1an = document.getElementsByName("rule1AntecedentNegated")[0].checked;
   let r1a_name = document.getElementsByName("rule1Antecedent")[0].value;
+  let r1a_struct = {
+    negated: r1an,
+    name: r1a_name
+  };
   let r1cn = document.getElementsByName("rule1ConsequentNegated")[0].checked;
   let r1c_name = document.getElementsByName("rule1Consequent")[0].value;
+  let r1c_struct = {
+    negated: r1cn,
+    name: r1c_name
+  };
+  let r1_struct = {
+    antecedent: r1a_struct,
+    consequent: r1c_struct
+  }
   let cn = document.getElementsByName("conclusionNegated")[0].checked;
   let c_name = document.getElementsByName("conclusion")[0].value;
+  let c_struct = {
+    negated: cn,
+    name: c_name
+  };
+    
+  argument_struct = [
+    p1_struct,
+    r1_struct,
+    c_struct
+  ];
 
-  logicParts = new Map();
-  logicParts.set("p1vn", p1vn);
-  logicParts.set("p1v_name", p1v_name);
-  logicParts.set("r1an", r1an);
-  logicParts.set("r1a_name", r1a_name);
-  logicParts.set("r1cn", r1cn);
-  logicParts.set("r1c_name", r1c_name);
-  logicParts.set("cn", cn);
-  logicParts.set("c_name", c_name);
-
-  evaluateLogic(logicParts);
+  evaluateLogic(argument_struct);
 }
-function evaluateLogic(logicParts) {
-  let p1vn = logicParts.get("p1vn");
-  let p1v_name = logicParts.get("p1v_name");
-  let r1an = logicParts.get("r1an");
-  let r1a_name = logicParts.get("r1a_name");
-  let r1cn = logicParts.get("r1cn");
-  let r1c_name = logicParts.get("r1c_name");
-  let cn = logicParts.get("cn");
-  let c_name = logicParts.get("c_name");
+function evaluateLogic(argument_struct) {
+  let p1_struct = argument_struct[0];
+  let p1vn = p1_struct.negated;
+  let p1v_name = p1_struct.name;
+  
+  let r1_struct = argument_struct[1];
+
+  let r1a_struct = r1_struct.antecedent;
+  let r1an = r1a_struct.negated;
+  let r1a_name = r1a_struct.name;
+
+  let r1c_struct = r1_struct.consequent;
+  let r1cn = r1c_struct.negated;
+  let r1c_name = r1c_struct.name;
+
+  let c_struct = argument_struct[2];
+  let cn = c_struct.negated;
+  let c_name = c_struct.name;
 
   let variables = new Map();
   contradiction = true;
