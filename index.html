@@ -19,7 +19,13 @@ margin-left: 200px
 </style>
 <script>
 function evaluateLogic() {
-  alert("logic'd!");
+let variables = new Map();
+variables.set(document.getElementsByName("premise1Variable")[0].value, false);
+variables.set(document.getElementsByName("rule1Antecedent")[0].value, false);
+variables.set(document.getElementsByName("rule1Consequent")[0].value, false);
+
+let result = !document.getElementsByName("premise1VariableNegated")[0].value & variables.get(document.getElementsByName("premise1Variable"));
+alert(result);
 }
 </script>
 </head>
@@ -31,12 +37,12 @@ function evaluateLogic() {
 </div>
 
 <div class="premise1">
-<p>Premise 1: <input type="checkbox"> </input> <input type="text"> </input></p>
+<p>Premise 1: <input type="checkbox" name="premise1VariableNegated"> </input> <input type="text" name="premise1Variable"> </input></p>
 </div>
 <div class"rule1">
 <p>Rule 1: 
-If <input type="checkbox"> </input> <input type="text"> </input> then
-<input type="checkbox"> </input> <input type="text"> </input>. </p>
+If <input type="checkbox" name="rule1AntecedentNegated"> </input> <input type="text" name="rule1Antecedent"> </input> then
+<input type="checkbox" name="rule1ConsequentNegated"> </input> <input type="text" name="rule1Consequent"> </input>. </p>
 </div>
 <button class="evaluate" onclick="evaluateLogic();">Evaluate!</button>
 </body>
