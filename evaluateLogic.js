@@ -1,4 +1,4 @@
-function evaluateLogic() {
+function extractPartsAndEvaluateLogic() {
   let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
   let p1v_name = document.getElementsByName("premise1Variable")[0].value;
   let r1an = document.getElementsByName("rule1AntecedentNegated")[0].checked;
@@ -7,6 +7,28 @@ function evaluateLogic() {
   let r1c_name = document.getElementsByName("rule1Consequent")[0].value;
   let cn = document.getElementsByName("conclusionNegated")[0].checked;
   let c_name = document.getElementsByName("conclusion")[0].value;
+
+  logicParts = new Map();
+  logicParts.set("p1vn", p1vn);
+  logicParts.set("p1v_name", p1v_name);
+  logicParts.set("r1an", r1an);
+  logicParts.set("r1a_name", r1a_name);
+  logicParts.set("r1cn", r1cn);
+  logicParts.set("r1c_name", r1c_name);
+  logicParts.set("cn", cn);
+  logicParts.set("c_name", c_name);
+
+  evaluateLogic(logicParts);
+}
+function evaluateLogic(logicParts) {
+  let p1vn = logicParts.get("p1vn");
+  let p1v_name = logicParts.get("p1v_name");
+  let r1an = logicParts.get("r1an");
+  let r1a_name = logicParts.get("r1a_name");
+  let r1cn = logicParts.get("r1cn");
+  let r1c_name = logicParts.get("r1c_name");
+  let cn = logicParts.get("cn");
+  let c_name = logicParts.get("c_name");
 
   let variables = new Map();
   contradiction = true;
