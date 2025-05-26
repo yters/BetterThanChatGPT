@@ -50,10 +50,12 @@
   function updateProps() {
     setCookies();
     let tbody = "";
+    let i = 0;
     for (const prop of data.props) {
-        tbody += "<tr><td>" + (prop.negated ? '<span class="false">False</span>' : '<span class="true">True</span>') + "</td>" +
-          "<td>" + prop.name + "</td>" +
-          "<td></td></tr>";
+      tbody += "<tr><td>" + (prop.negated ? '<span class="false">False</span>' : '<span class="true">True</span>') + "</td>" +
+        "<td>" + prop.name + "</td>" +
+        "<td><button class='delete' onclick='deleteProp(" + i + ");''>Del</button></td></tr>";
+      i++;
     }
     document.getElementById("list_props").querySelector('tbody').innerHTML = tbody;
   }
@@ -61,10 +63,12 @@
   function updateConds() {
     setCookies();
     let tbody = "";
+    let i = 0;
     for (const cond of data.conds) {
-        tbody += "<tr><td>" + (cond.antecedent.negated ? 'If <span class="false">not</span>' : 'If') + ' "' + cond.antecedent.name + '"' + 
-          " then " + (cond.consequent.negated ? '<span class="false">not</span>' : '') + '"' + cond.consequent.name + '"</td>' +
-          "<td></td></tr>";
+      tbody += "<tr><td>" + (cond.antecedent.negated ? 'If <span class="false">not</span>' : 'If') + ' "' + cond.antecedent.name + '"' + 
+        " then " + (cond.consequent.negated ? '<span class="false">not</span>' : '') + '"' + cond.consequent.name + '"</td>' +
+        "<td><button class='delete' onclick='deleteCond(" + i + ");''>Del</button></td></tr>";
+      i++;
     }
     document.getElementById("list_conds").querySelector('tbody').innerHTML = tbody;
   }
@@ -80,6 +84,16 @@
     let cons = new Proposition(document.getElementById('cond_cons_true').value == "true" ? false : true, document.getElementById('cond_cons').value);
     let cond = new Conditional(ante, cons);
     data.conds.push(cond);
+    updateConds();
+  }
+
+  function deleteProp(number) {
+    data.props.splice(number, 1);
+    updateProps();
+  }
+
+  function deleteCond(number) {
+    data.conds.splice(number, 1);
     updateConds();
   }
 
