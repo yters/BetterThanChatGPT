@@ -31,25 +31,26 @@
 </style>
 <script src="evaluateLogic.js"></script> 
 <script>
-  var cookies = {};
-  if (document.cookies == "" || document.cookies == undefined) {
-    cookies.props = [];
-    cookies.conds = [];
+  var data = {};
+  console.log("'" + document.cookie + "'");
+  let result = document.cookie.match(new RegExp('data=([^;]+)'));
+  if (result) {
+    data = JSON.parse(result[1]);
   } else {
-    console.log("'" + document.cookies + "'");
-    cookies = JSON.parse(document.cookies);
+    data.props = [];
+    data.conds = [];
   }
 
   function setCookies() {
-    document.cookies = JSON.stringify(cookies);
+    document.cookie = ["data", '=', JSON.stringify(data), ';', window.location.host.toString(), ';'].join('');
+    console.log("'" + ["data", '=', JSON.stringify(data), ';', window.location.host.toString(), ';'].join('') + "'");
+    console.log("'" + document.cookie + "'");
   }
-
-  document.onReady
 
   function updateProps() {
     setCookies();
     let tbody = "";
-    for (const prop of cookies.props) {
+    for (const prop of data.props) {
         tbody += "<tr><td>" + (prop.negated ? '<span class="false">False</span>' : '<span class="true">True</span>') + "</td>" +
           "<td>" + prop.name + "</td>" +
           "<td></td></tr>";
@@ -60,7 +61,7 @@
   function updateConds() {
     setCookies();
     let tbody = "";
-    for (const cond of cookies.conds) {
+    for (const cond of data.conds) {
         tbody += "<tr><td>" + (cond.antecedent.negated ? 'If <span class="false">not</span>' : 'If') + ' "' + cond.antecedent.name + '"' + 
           " then " + (cond.consequent.negated ? '<span class="false">not</span>' : '') + '"' + cond.consequent.name + '"</td>' +
           "<td></td></tr>";
@@ -70,7 +71,7 @@
   
   function addProp(negated) {
     let prop = {negated: negated, name: document.getElementById('prop_input').value}
-    cookies.props.push(prop);
+    data.props.push(prop);
     updateProps();
   }
 
@@ -78,12 +79,12 @@
     let ante = {negated: document.getElementById('cond_ante_true').value == "true" ? false : true, name: document.getElementById('cond_ante').value}
     let cons = {negated: document.getElementById('cond_cons_true').value == "true" ? false : true, name: document.getElementById('cond_cons').value}
     let cond = {antecedent: ante, consequent: cons}
-    cookies.conds.push(cond);
+    data.conds.push(cond);
     updateConds();
   }
 
   function evaluateAll() {
-    evaluateLogic([cookies.props[0], cookies.conds[0], cookies.props.at(-1)])
+    evaluateLogic([data.props[0], data.conds[0], data.props.at(-1)])
   }
 
 </script>
