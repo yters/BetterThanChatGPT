@@ -69,7 +69,13 @@ function evaluateLogic() {
       }
     }
   }
-  alert("contradiction: " + contradiction + "\ntautology: " + tautology);
+  message = "contradiction: " + contradiction + "\ntautology: " + tautology + "\n";
+  if (tautology) {
+    message += "conclusion follows from premises";
+  } else {
+    message += "conclusion does not follow from premises";
+  }
+  alert(message);
 }
 </script>
 
