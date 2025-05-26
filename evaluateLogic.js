@@ -1,32 +1,44 @@
+class Premise {
+  negated;
+  name;
+  constructor(negated, name) {
+    this.negated = negated;
+    this.name = name;
+  }
+}
+
+class Conditional {
+  antecedent;
+  consequent;
+  constructor(antecedent, consequent) {
+    this.antecedent = antecedent;
+    this.consequent = consequent;
+  }
+}
+
+class Conclusion {
+  negated;
+  name;
+  constructor(negated, name) {
+    this.negated = negated;
+    this.name = name;
+  }
+}
+
 function extractPartsAndEvaluateLogic() {
   let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
   let p1v_name = document.getElementsByName("premise1Variable")[0].value;
-  let p1_struct = {
-    negated: p1vn,
-    name: p1v_name
-  };
+  let p1_struct = new Premise(p1vn, p1v_name);
   let r1an = document.getElementsByName("rule1AntecedentNegated")[0].checked;
   let r1a_name = document.getElementsByName("rule1Antecedent")[0].value;
-  let r1a_struct = {
-    negated: r1an,
-    name: r1a_name
-  };
+  let r1a_struct = new Premise(r1an, r1a_name);
   let r1cn = document.getElementsByName("rule1ConsequentNegated")[0].checked;
   let r1c_name = document.getElementsByName("rule1Consequent")[0].value;
-  let r1c_struct = {
-    negated: r1cn,
-    name: r1c_name
-  };
-  let r1_struct = {
-    antecedent: r1a_struct,
-    consequent: r1c_struct
-  }
+  let r1c_struct = new Premise(r1cn, r1c_name);
+  let r1_struct = new Conditional(r1a_struct, r1c_struct);
   let cn = document.getElementsByName("conclusionNegated")[0].checked;
   let c_name = document.getElementsByName("conclusion")[0].value;
-  let c_struct = {
-    negated: cn,
-    name: c_name
-  };
+  let c_struct = new Conclusion(cn, c_name);
     
   argument_struct = [
     p1_struct,
@@ -36,6 +48,7 @@ function extractPartsAndEvaluateLogic() {
 
   evaluateLogic(argument_struct);
 }
+
 function evaluateLogic(argument_struct) {
   let p1_struct = argument_struct[0];
   let p1vn = p1_struct.negated;
