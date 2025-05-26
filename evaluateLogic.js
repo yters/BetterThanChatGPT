@@ -25,7 +25,7 @@ class Conditional {
     this.consequent = consequent;
   }
   logicExpression() {
-    return "!(" + antecedent.logicExpression() + ")||(" + consequent.logicExpression() + ")"
+    return "(!(" + this.antecedent.logicExpression() + ")||(" + this.consequent.logicExpression() + "))"
   }
   variables() {
     return [this.antecedent.name, this.consequent.name];
@@ -72,6 +72,10 @@ function extractPartsAndEvaluateLogic() {
     c_struct
   ];
 
+  variables = [...new Set(argument_struct.map(l => l.variables()).flat())];
+  console.log("variables: " + variables);
+  logic_expression = argument_struct.map(l => l.logicExpression()).join("&&");
+  console.log("logic expression: " + logic_expression);
   evaluateLogic(argument_struct);
 }
 
