@@ -5,6 +5,16 @@ class Premise {
     this.negated = negated;
     this.name = name;
   }
+  logicExpression() {
+    if (this.negated) {
+      return "!" + this.name;
+    } else {
+      return this.name;
+    }
+  }
+  variables() {
+    return [this.name];
+  }
 }
 
 class Conditional {
@@ -14,6 +24,12 @@ class Conditional {
     this.antecedent = antecedent;
     this.consequent = consequent;
   }
+  logicExpression() {
+    return "!(" + antecedent.logicExpression() + ")||(" + consequent.logicExpression() + ")"
+  }
+  variables() {
+    return [this.antecedent.name, this.consequent.name];
+  }
 }
 
 class Conclusion {
@@ -22,6 +38,16 @@ class Conclusion {
   constructor(negated, name) {
     this.negated = negated;
     this.name = name;
+  }
+  logicExpression() {
+    if (this.negated) {
+      return "!" + this.name;
+    } else {
+      return this.name;
+    }
+  }
+  variables() {
+    return [this.name];
   }
 }
 
