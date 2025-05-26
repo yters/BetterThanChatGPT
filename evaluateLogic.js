@@ -1,4 +1,4 @@
-class Premise {
+class Proposition {
   negated;
   name;
   constructor(negated, name) {
@@ -54,13 +54,13 @@ class Conclusion {
 function extractPartsAndEvaluateLogic() {
   let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
   let p1v_name = document.getElementsByName("premise1Variable")[0].value;
-  let p1_struct = new Premise(p1vn, p1v_name);
+  let p1_struct = new Proposition(p1vn, p1v_name);
   let r1an = document.getElementsByName("rule1AntecedentNegated")[0].checked;
   let r1a_name = document.getElementsByName("rule1Antecedent")[0].value;
-  let r1a_struct = new Premise(r1an, r1a_name);
+  let r1a_struct = new Proposition(r1an, r1a_name);
   let r1cn = document.getElementsByName("rule1ConsequentNegated")[0].checked;
   let r1c_name = document.getElementsByName("rule1Consequent")[0].value;
-  let r1c_struct = new Premise(r1cn, r1c_name);
+  let r1c_struct = new Proposition(r1cn, r1c_name);
   let r1_struct = new Conditional(r1a_struct, r1c_struct);
   let cn = document.getElementsByName("conclusionNegated")[0].checked;
   let c_name = document.getElementsByName("conclusion")[0].value;
@@ -75,9 +75,7 @@ function extractPartsAndEvaluateLogic() {
 }
 
 function evaluateLogic(axioms, conclusion) {
-  var variable_instances = axioms.map(l => l.variables()).concat(conclusion.variables());
-  console.log("variable instances: " + variable_instances);
-  var variables = [...new Set(variable_instances.flat())];
+  var variables = [...new Set(axioms.map(l => l.variables()).concat(conclusion.variables()).flat())];
   console.log("variables: " + variables);
   var logic_expression = "!(" + axioms.map(l => l.logicExpression()).join("&&") + ")||(" + conclusion.logicExpression() + ")";
   console.log("logic expression: " + logic_expression);
