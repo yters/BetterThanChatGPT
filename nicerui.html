@@ -55,7 +55,7 @@
     url.search = "?" + encodeURI(ds);
 
     history.replaceState(null, "", url.search);
-    document.getElementById('shareable_link').href = url.href;
+    document.getElementById('shareable_link').href = "https://yters.github.io/BetterThanChatGPT/nicerui.html" + url.search;
   }
 
   function updateProps() {
