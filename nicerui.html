@@ -44,6 +44,14 @@
     }
   } else {
     data = JSON.parse(decodeURI(window.location.search.slice(1)));
+    for (let i = 0; i < data.props.length; i++) {
+      data.props[i] = new Proposition(data.props[i].negated, data.props[i].name);
+    }
+    for (let i = 0; i < data.conds.length; i++) {
+      let ante = new Proposition(data.conds[i].antecedent.negated, data.conds[i].antecedent.name);
+      let cons = new Proposition(data.conds[i].consequent.negated, data.conds[i].consequent.name);
+      data.conds[i] = new Conditional(ante, cons);
+    }
   }    
 
   function setCookies() {
