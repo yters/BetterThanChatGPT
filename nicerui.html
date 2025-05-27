@@ -19,6 +19,7 @@
   }
   table, th, td {
     border: 1px solid;
+    text-align: center;
   }
   span.true {
     color: darkgreen;
@@ -71,6 +72,9 @@
     let tbody = "";
     let i = 0;
     for (const prop of data.props) {
+      if (i == data.props.length - 1) {
+        tbody += "<tr><th colspan='3'><em>Conclusion</em></th></tr>";
+      }
       tbody += "<tr><td>" + (prop.negated ? '<span class="false">False</span>' : '<span class="true">True</span>') + "</td>" +
         "<td>" + prop.name + "</td>" +
         "<td><button class='delete' onclick='deleteProp(" + i + ");''>Del</button></td></tr>";
