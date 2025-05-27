@@ -1,19 +1,30 @@
 class Proposition {
+  static number = 0;
+  static name_map = {};
+  static variable_map = {};
   negated;
   name;
+  variable;
   constructor(negated, name) {
     this.negated = negated;
     this.name = name;
+    if (Proposition.name_map[name]) {
+      this.variable = Proposition.name_map[name];
+    } else {
+      this.variable = "P" + Proposition.number++;
+      Proposition.name_map[name] = this.variable;
+      Proposition.variable_map[this.variable] = name;
+    }
   }
   logicExpression() {
     if (this.negated) {
-      return "!" + this.name;
+      return "!" + this.variable;
     } else {
-      return this.name;
+      return this.variable;
     }
   }
   variables() {
-    return [this.name];
+    return [this.variable];
   }
 }
 
@@ -58,7 +69,7 @@ class Conditional {
   }
 }
 
-class Conclusion {
+/*class Conclusion {
   negated;
   name;
   constructor(negated, name) {
@@ -75,7 +86,7 @@ class Conclusion {
   variables() {
     return [this.name];
   }
-}
+}*/
 
 function extractPartsAndEvaluateLogic() {
   let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
@@ -126,7 +137,7 @@ function evaluateLogicExpression(variables, logic_expression) {
     for (let j = 0; j < variables.length; j++) {
       var_val = i_tmp % 2;
       this[variables[j]] = var_val;
-      console.log(variables[j] + " " + var_val);
+      console.log(Proposition.variable_map[variables[j]] + " " + var_val);
       i_tmp = Math.floor(i_tmp/2);
     }
     result = eval(logic_expression);
