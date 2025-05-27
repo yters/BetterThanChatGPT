@@ -31,20 +31,31 @@
 </style>
 <script src="evaluateLogic.js"></script> 
 <script>
+  var url = new URL(window.location.href);
   var data = {};
-  //console.log("'" + document.cookie + "'");
-  let result = document.cookie.match(new RegExp('data=([^;]+)'));
-  if (result) {
-    data = JSON.parse(result[1]);
+  console.log("'" + url.search + "'");
+  if (url.search == "") {
+    let result = document.cookie.match(new RegExp('data=([^;]+)'));
+    if (result) {
+      data = JSON.parse(result[1]);
+    } else {
+      data.props = [];
+      data.conds = [];
+    }
   } else {
-    data.props = [];
-    data.conds = [];
-  }
+    data = JSON.parse(decodeURI(window.location.search.slice(1)));
+  }    
 
   function setCookies() {
-    document.cookie = ["data", '=', JSON.stringify(data), ';', window.location.host.toString(), ';'].join('');
-    console.log("'" + ["data", '=', JSON.stringify(data), ';', window.location.host.toString(), ';'].join('') + "'");
+    let ds = JSON.stringify(data);
+    document.cookie = ["data", '=', ds, ';', window.location.host.toString(), ';'].join('');
+    console.log("'" + ["data", '=', ds, ';', window.location.host.toString(), ';'].join('') + "'");
     //console.log("'" + document.cookie + "'");
+
+    url.search = "?" + encodeURI(ds);
+
+    history.replaceState(null, "", url.search);
+    document.getElementById('shareable_link').href = url.href;
   }
 
   function updateProps() {
@@ -152,6 +163,8 @@
     </tbody>
   </table>
 </div>
-<button class="evaluate" onclick="evaluateAll();">Evaluate!</button>
+<div>
+  <p><button class="evaluate" onclick="evaluateAll();">Evaluate!</button> <a id="shareable_link" href="">Shareable Link</a></p>
+</div>
 </body>
 </html>
