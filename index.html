@@ -81,6 +81,7 @@
       i++;
     }
     document.getElementById("list_props").querySelector('tbody').innerHTML = tbody;
+    updateEvaluation();
   }
 
   function updateConds() {
@@ -94,13 +95,13 @@
       i++;
     }
     document.getElementById("list_conds").querySelector('tbody').innerHTML = tbody;
+    updateEvaluation();
   }
   
   function addProp(negated) {
     let prop = new Proposition(negated, document.getElementById('prop_input').value);
     data.props.push(prop);
     updateProps();
-    clearEvaluation();
   }
 
   function addCond() {
@@ -109,7 +110,6 @@
     let cond = new Conditional(ante, cons);
     data.conds.push(cond);
     updateConds();
-    clearEvaluation();
   }
 
   function deleteProp(number) {
@@ -126,13 +126,13 @@
     if (data.props.length < 1 || data.props.length + data.conds.length < 2) {
       alert("At least one proposition (ie. the conclusion) and at least one other proposition or condition are required.");
     } else {
-      evaluation = evaluateLogic(data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
-      updateEvaluation(evaluation);
+      updateEvaluation();
     }
   }
 
-  function updateEvaluation(evaluation) {
+  function updateEvaluation() {
     let outcome = document.getElementById("outcome");
+    let evaluation = evaluateLogic(data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
     if (evaluation.contradiction) {
       outcome.innerHTML = "Axioms are contradictory, so anything follows.";
     } else if (evaluation.tautology) {
