@@ -100,6 +100,7 @@
     let prop = new Proposition(negated, document.getElementById('prop_input').value);
     data.props.push(prop);
     updateProps();
+    clearEvaluation();
   }
 
   function addCond() {
@@ -108,6 +109,7 @@
     let cond = new Conditional(ante, cons);
     data.conds.push(cond);
     updateConds();
+    clearEvaluation();
   }
 
   function deleteProp(number) {
@@ -124,8 +126,41 @@
     if (data.props.length < 1 || data.props.length + data.conds.length < 2) {
       alert("At least one proposition (ie. the conclusion) and at least one other proposition or condition are required.");
     } else {
-      evaluateLogic(data.props.slice(0, -1).concat(data.conds), data.props.at(-1))
+      evaluation = evaluateLogic(data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
+      updateEvaluation(evaluation);
     }
+  }
+
+  function updateEvaluation(evaluation) {
+    let outcome = document.getElementById("outcome");
+    if (evaluation.contradiction) {
+      outcome.innerHTML = "Axioms are contradictory, so anything follows.";
+    } else if (evaluation.tautology) {
+      outcome.innerHTML = "Conclusion follows from axioms.";
+    } else {
+      outcome.innerHTML = "Unknown.";
+    }
+    let evaluation_contradiction = document.getElementById("evaluation_contradiction");
+    if (evaluation.contradiction) {
+      evaluation_contradiction.innerHTML = "True";
+    } else {
+      evaluation_contradiction.innerHTML = "False";
+    }
+    let evaluation_tautology = document.getElementById("evaluation_tautology");
+    if (evaluation.tautology) {
+      evaluation_tautology.innerHTML = "True";
+    } else {
+      evaluation_tautology.innerHTML = "False";
+    }
+  }
+
+  function clearEvaluation(evaluation) {
+    let outcome = document.getElementById("outcome");
+    outcome.innerHTML = "Uknown.";
+    let evaluation_contradiction = document.getElementById("evaluation_contradiction");
+    evaluation_contradiction.innerHTML = "Unknown";
+    let evaluation_tautology = document.getElementById("evaluation_tautology");
+    evaluation_tautology.innerHTML = "Unknown";
   }
 
 </script>
@@ -169,12 +204,28 @@
 </div>
 <div>
   <table id="list_conds">
-    <thead><tr><th>Condition</th></th><th>Actions</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Actions</th></tr></thead>
     <tbody>
       <tr><td>If "all crows are black" then <span class="false">not</span> "all ravens are black"</td><td></td></tr>
     </tbody>
   </table>
 </div>
+<div>
+  <p>
+    <b>
+      Evaluation:
+    </b>
+  </p>
+  <p id="outcome">
+    Unknown.
+  </p>
+  <table id="evaluation_properties">
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Axioms form contradiction</td><td id="evaluation_contradiction">Unknown</td></tr>
+      <tr><td>Argument is a tautology</td><td id="evaluation_tautology">Unknown</td></tr>
+    </tbody>
+  </table>
 <div>
   <p><button class="evaluate" onclick="evaluateAll();">Evaluate!</button> <a id="shareable_link" href="">Shareable Link</a></p>
 </div>

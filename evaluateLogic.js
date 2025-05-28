@@ -114,7 +114,16 @@ function evaluateLogic(axioms, conclusion) {
   var axioms_logic_expression = axioms.map(l => l.logicExpression()).join("&&")
   var logic_expression = "!(" + axioms_logic_expression + ")||(" + conclusion.logicExpression() + ")";
   console.log("logic expression: " + logic_expression);
-  evaluateLogicExpression(variables, axioms_logic_expression, logic_expression);
+  evaluation = evaluateLogicExpression(variables, axioms_logic_expression, logic_expression);
+  var message = "contradiction: " + evaluation.contradiction + "\ntautology: " + evaluation.tautology + "\n";
+  if (evaluation.contradiction) {
+    message += "principle of explosion\n";
+  }
+  else if (evaluation.tautology) {
+    message += "conclusion follows";
+  }
+  console.log(message);
+  return evaluation;
 }
 
 function evaluateLogicExpression(variables, axioms_logic_expression, logic_expression) {
@@ -143,14 +152,6 @@ function evaluateLogicExpression(variables, axioms_logic_expression, logic_expre
     }
     console.log("===================");
   }
-  var message = "contradiction: " + contradiction + "\ntautology: " + tautology + "\n";
-  if (contradiction) {
-    message += "principle of explosion\n";
-  }
-  else if (tautology) {
-    message += "conclusion follows";
-  }
-  console.log(message);
   return new Evaluation(contradiction, tautology)
 }
 
