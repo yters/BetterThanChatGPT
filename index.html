@@ -140,7 +140,7 @@
     } else {
       outcome.innerHTML = "Axioms do not imply conclusion.";
     }
-    let evaluation_contradiction = document.getElementById("evaluation_contradiction");
+    /*let evaluation_contradiction = document.getElementById("evaluation_contradiction");
     if (evaluation.contradiction) {
       evaluation_contradiction.innerHTML = "True";
     } else {
@@ -151,7 +151,7 @@
       evaluation_tautology.innerHTML = "True";
     } else {
       evaluation_tautology.innerHTML = "False";
-    }
+    }*/
   }
 
   function clearEvaluation(evaluation) {
@@ -221,13 +221,13 @@
       Unknown.
     </u>
   </p>
-  <table id="evaluation_properties">
+  <!--<table id="evaluation_properties">
     <thead><tr><th>Property</th><th>Value</th></tr></thead>
     <tbody>
       <tr><td>Axioms form contradiction</td><td id="evaluation_contradiction">Unknown</td></tr>
       <tr><td>Argument is a tautology</td><td id="evaluation_tautology">Unknown</td></tr>
     </tbody>
-  </table>
+  </table>-->
 <div>
   <p><button class="evaluate" onclick="evaluateAll();">Evaluate!</button> <a id="shareable_link" href="">Shareable Link</a></p>
 </div>
