@@ -138,7 +138,7 @@
     } else if (evaluation.tautology) {
       outcome.innerHTML = "Conclusion follows from axioms.";
     } else {
-      outcome.innerHTML = "Unknown.";
+      outcome.innerHTML = "Axioms do not imply conclusion.";
     }
     let evaluation_contradiction = document.getElementById("evaluation_contradiction");
     if (evaluation.contradiction) {
@@ -216,8 +216,10 @@
       Evaluation:
     </b>
   </p>
-  <p id="outcome">
-    Unknown.
+  <p>
+    <u id="outcome">
+      Unknown.
+    </u>
   </p>
   <table id="evaluation_properties">
     <thead><tr><th>Property</th><th>Value</th></tr></thead>
