@@ -72,6 +72,7 @@ class Conditional {
 class Evaluation {
   contradiction;
   tautology;
+  runTime;
   constructor(contradiction, tautology) {
     this.contradiction = contradiction;
     this.tautology = tautology;
@@ -109,6 +110,7 @@ function extractPartsAndEvaluateLogic() {
 }
 
 function evaluateLogic(axioms, conclusion) {
+  let startTime = performance.now();
   var variables = [...new Set(axioms.map(l => l.variables()).concat(conclusion.variables()).flat())];
   console.log("variables: " + variables);
   var axioms_logic_expression = axioms.map(l => l.logicExpression()).join("&&")
@@ -123,6 +125,7 @@ function evaluateLogic(axioms, conclusion) {
     message += "conclusion follows";
   }
   console.log(message);
+  evaluation.runTime = performance.now() - startTime;
   return evaluation;
 }
 

@@ -133,12 +133,13 @@
   function updateEvaluation() {
     let outcome = document.getElementById("outcome");
     let evaluation = evaluateLogic(data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
+    let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
     if (evaluation.contradiction) {
-      outcome.innerHTML = "Axioms are contradictory, so anything follows.";
+      outcome.innerHTML = "Axioms are contradictory, so anything follows." + timeMessage;
     } else if (evaluation.tautology) {
-      outcome.innerHTML = "Conclusion follows from axioms.";
+      outcome.innerHTML = "Conclusion follows from axioms." + timeMessage;
     } else {
-      outcome.innerHTML = "Axioms do not imply conclusion.";
+      outcome.innerHTML = "Axioms do not imply conclusion." + timeMessage;
     }
     /*let evaluation_contradiction = document.getElementById("evaluation_contradiction");
     if (evaluation.contradiction) {
