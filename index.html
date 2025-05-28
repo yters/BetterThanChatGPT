@@ -1,47 +1,233 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <style>
-body {
-margin-left: 200px
-}
-
-.announcement {
-  border: 1px solid gray;
-  margin-left: auto;
-  margin-right: auto;
-  width: 90%;
-  background-color: #d0f0f6;
-  text-align: left;
-  padding: 8px;
-}
+  .announcement {
+    border: 1px solid gray;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    background-color: #d0f0f6;
+    text-align: left;
+    padding: 8px;
+  }
+  #prop_true {
+    background-color: lightgreen
+  }
+  #prop_false {
+    background-color: pink
+  }
+  table, th, td {
+    border: 1px solid;
+    text-align: center;
+  }
+  span.true {
+    color: darkgreen;
+    font-weight: bold;
+  }
+  span.false {
+    color: darkred;
+    font-weight: bold;
+  }
 </style>
+<script src="evaluateLogic.js"></script> 
+<script>
+  var url = new URL(window.location.href);
+  var data = {};
+  console.log("'" + url.search + "'");
+  if (url.search == "") {
+    let result = document.cookie.match(new RegExp('data=([^;]+)'));
+    if (result) {
+      data = JSON.parse(result[1]);
+    } else {
+      data.props = [];
+      data.conds = [];
+    }
+  } else {
+    data = JSON.parse(decodeURI(window.location.search.slice(1)));
+    for (let i = 0; i < data.props.length; i++) {
+      data.props[i] = new Proposition(data.props[i].negated, data.props[i].name);
+    }
+    for (let i = 0; i < data.conds.length; i++) {
+      let ante = new Proposition(data.conds[i].antecedent.negated, data.conds[i].antecedent.name);
+      let cons = new Proposition(data.conds[i].consequent.negated, data.conds[i].consequent.name);
+      data.conds[i] = new Conditional(ante, cons);
+    }
+  }    
 
-<script src="functions.js"></script> 
-<script src="evaluateLogic.js"></script>
+  function setCookies() {
+    let ds = JSON.stringify(data);
+    document.cookie = ["data", '=', ds, ';', window.location.host.toString(), ';'].join('');
+    console.log("'" + ["data", '=', ds, ';', window.location.host.toString(), ';'].join('') + "'");
+    //console.log("'" + document.cookie + "'");
 
+    url.search = "?" + encodeURI(ds);
+
+    history.replaceState(null, "", url.search);
+    document.getElementById('shareable_link').href = "https://yters.github.io/BetterThanChatGPT/index.html" + url.search;
+  }
+
+  function updateProps() {
+    setCookies();
+    let tbody = "";
+    let i = 0;
+    for (const prop of data.props) {
+      if (i == data.props.length - 1) {
+        tbody += "<tr><th colspan='3'><em>Conclusion</em></th></tr>";
+      }
+      tbody += "<tr><td>" + (prop.negated ? '<span class="false">False</span>' : '<span class="true">True</span>') + "</td>" +
+        "<td>" + prop.name + "</td>" +
+        "<td><button class='delete' onclick='deleteProp(" + i + ");''>Del</button></td></tr>";
+      i++;
+    }
+    document.getElementById("list_props").querySelector('tbody').innerHTML = tbody;
+  }
+
+  function updateConds() {
+    setCookies();
+    let tbody = "";
+    let i = 0;
+    for (const cond of data.conds) {
+      tbody += "<tr><td>" + (cond.antecedent.negated ? 'If <span class="false">not</span>' : 'If') + ' "' + cond.antecedent.name + '"' + 
+        " then " + (cond.consequent.negated ? '<span class="false">not</span>' : '') + '"' + cond.consequent.name + '"</td>' +
+        "<td><button class='delete' onclick='deleteCond(" + i + ");''>Del</button></td></tr>";
+      i++;
+    }
+    document.getElementById("list_conds").querySelector('tbody').innerHTML = tbody;
+  }
+  
+  function addProp(negated) {
+    let prop = new Proposition(negated, document.getElementById('prop_input').value);
+    data.props.push(prop);
+    updateProps();
+    clearEvaluation();
+  }
+
+  function addCond() {
+    let ante = new Proposition(document.getElementById('cond_ante_true').value == "true" ? false : true, document.getElementById('cond_ante').value);
+    let cons = new Proposition(document.getElementById('cond_cons_true').value == "true" ? false : true, document.getElementById('cond_cons').value);
+    let cond = new Conditional(ante, cons);
+    data.conds.push(cond);
+    updateConds();
+    clearEvaluation();
+  }
+
+  function deleteProp(number) {
+    data.props.splice(number, 1);
+    updateProps();
+  }
+
+  function deleteCond(number) {
+    data.conds.splice(number, 1);
+    updateConds();
+  }
+
+  function evaluateAll() {
+    if (data.props.length < 1 || data.props.length + data.conds.length < 2) {
+      alert("At least one proposition (ie. the conclusion) and at least one other proposition or condition are required.");
+    } else {
+      evaluation = evaluateLogic(data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
+      updateEvaluation(evaluation);
+    }
+  }
+
+  function updateEvaluation(evaluation) {
+    let outcome = document.getElementById("outcome");
+    if (evaluation.contradiction) {
+      outcome.innerHTML = "Axioms are contradictory, so anything follows.";
+    } else if (evaluation.tautology) {
+      outcome.innerHTML = "Conclusion follows from axioms.";
+    } else {
+      outcome.innerHTML = "Unknown.";
+    }
+    let evaluation_contradiction = document.getElementById("evaluation_contradiction");
+    if (evaluation.contradiction) {
+      evaluation_contradiction.innerHTML = "True";
+    } else {
+      evaluation_contradiction.innerHTML = "False";
+    }
+    let evaluation_tautology = document.getElementById("evaluation_tautology");
+    if (evaluation.tautology) {
+      evaluation_tautology.innerHTML = "True";
+    } else {
+      evaluation_tautology.innerHTML = "False";
+    }
+  }
+
+  function clearEvaluation(evaluation) {
+    let outcome = document.getElementById("outcome");
+    outcome.innerHTML = "Uknown.";
+    let evaluation_contradiction = document.getElementById("evaluation_contradiction");
+    evaluation_contradiction.innerHTML = "Unknown";
+    let evaluation_tautology = document.getElementById("evaluation_tautology");
+    evaluation_tautology.innerHTML = "Unknown";
+  }
+
+</script>
 </head>
-<body>
+<body onload="updateProps(); updateConds()">
 
 <div class="announcement">
   <h1>Evaluate Logic</h1>
   <p></p>
 </div>
 
-<div class="premise1">
-<p>Premise 1: <input type="checkbox" name="premise1VariableNegated"> </input> <input type="text" name="premise1Variable"> </input></p>
-</div>
-<div class="rule1">
-<p>Rule 1: 
-If <input type="checkbox" name="rule1AntecedentNegated"> </input> <input type="text" name="rule1Antecedent"> </input> then
-<input type="checkbox" name="rule1ConsequentNegated"> </input> <input type="text" name="rule1Consequent"> </input>. </p>
-</div>
-<div class="conclusion">
-<p>Conclusion:
-<input type="checkbox" name="conclusionNegated"> </input>
-<input type="text" name="conclusion"> </input>
+<div>
+<p>
+  Proposition: <input type="text" id="prop_input" value="all crows are black"></input> is 
+  <button id="prop_true" onclick="addProp(false)">TRUE</button> / <button id="prop_false" onclick="addProp(true)">FALSE</button>
 </p>
-<button class="evaluate" onclick="extractPartsAndEvaluateLogic();">Evaluate!</button>
+</div>
+<div>
+  <table id="list_props">
+    <thead><tr><th>True?</th><th>Proposition</th></th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr><td>False</td><td>all ravens are black</td><td></td></tr>
+    </tbody>
+  </table>
+</div>
+<div>
+  <p>
+    Condition: 
+    <select id="cond_ante_true" value="If">
+      <option value="true">If</option>
+      <option value="false">If not</option>
+    </input> 
+    <input type="text" id="cond_ante" value="all crows are black"></input> 
+    <select id="cond_cons_true" value="then">
+      <option value="true">then</option>
+      <option value="false">then not</option>
+    </input> 
+    <input type="text" id="cond_cons" value="all ravens are black"></input>
+    <button id="cond_add" onclick="addCond()">ADD</button>
+  </p>
+</div>
+<div>
+  <table id="list_conds">
+    <thead><tr><th>Condition</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr><td>If "all crows are black" then <span class="false">not</span> "all ravens are black"</td><td></td></tr>
+    </tbody>
+  </table>
+</div>
+<div>
+  <p>
+    <b>
+      Evaluation:
+    </b>
+  </p>
+  <p id="outcome">
+    Unknown.
+  </p>
+  <table id="evaluation_properties">
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Axioms form contradiction</td><td id="evaluation_contradiction">Unknown</td></tr>
+      <tr><td>Argument is a tautology</td><td id="evaluation_tautology">Unknown</td></tr>
+    </tbody>
+  </table>
+<div>
+  <p><button class="evaluate" onclick="evaluateAll();">Evaluate!</button> <a id="shareable_link" href="">Shareable Link</a></p>
+</div>
 </body>
 </html>
