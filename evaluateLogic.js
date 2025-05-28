@@ -69,6 +69,15 @@ class Conditional {
   }
 }
 
+class Evaluation {
+  contradiction;
+  tautology;
+  constructor(contradiction, tautology) {
+    this.contradiction = contradiction;
+    this.tautology = tautology;
+  }
+}
+
 function extractPartsAndEvaluateLogic() {
   let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
   let p1v_name = document.getElementsByName("premise1Variable")[0].value;
@@ -142,5 +151,6 @@ function evaluateLogicExpression(variables, axioms_logic_expression, logic_expre
     message += "conclusion follows";
   }
   console.log(message);
+  return new Evaluation(contradiction, tautology)
 }
 
