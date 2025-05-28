@@ -69,25 +69,6 @@ class Conditional {
   }
 }
 
-/*class Conclusion {
-  negated;
-  name;
-  constructor(negated, name) {
-    this.negated = negated;
-    this.name = name;
-  }
-  logicExpression() {
-    if (this.negated) {
-      return "!" + this.name;
-    } else {
-      return this.name;
-    }
-  }
-  variables() {
-    return [this.name];
-  }
-}*/
-
 function extractPartsAndEvaluateLogic() {
   let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
   let p1v_name = document.getElementsByName("premise1Variable")[0].value;
@@ -108,7 +89,7 @@ function extractPartsAndEvaluateLogic() {
 
   let cn = document.getElementsByName("conclusionNegated")[0].checked;
   let c_name = document.getElementsByName("conclusion")[0].value;
-  let c_struct = new Conclusion(cn, c_name);
+  let c_struct = new Proposition(cn, c_name);
     
   axioms_struct = [
     p1_struct,
@@ -121,12 +102,13 @@ function extractPartsAndEvaluateLogic() {
 function evaluateLogic(axioms, conclusion) {
   var variables = [...new Set(axioms.map(l => l.variables()).concat(conclusion.variables()).flat())];
   console.log("variables: " + variables);
-  var logic_expression = "!(" + axioms.map(l => l.logicExpression()).join("&&") + ")||(" + conclusion.logicExpression() + ")";
+  var axioms_logic_expression = axioms.map(l => l.logicExpression()).join("&&")
+  var logic_expression = "!(" + axioms_logic_expression + ")||(" + conclusion.logicExpression() + ")";
   console.log("logic expression: " + logic_expression);
-  evaluateLogicExpression(variables, logic_expression);
+  evaluateLogicExpression(variables, axioms_logic_expression, logic_expression);
 }
 
-function evaluateLogicExpression(variables, logic_expression) {
+function evaluateLogicExpression(variables, axioms_logic_expression, logic_expression) {
   var contradiction = true;
   var tautology = true;
   iterations = 2**variables.length;
@@ -140,17 +122,23 @@ function evaluateLogicExpression(variables, logic_expression) {
       console.log(Proposition.variable_map[variables[j]] + " " + var_val);
       i_tmp = Math.floor(i_tmp/2);
     }
+    axioms_result = eval(axioms_logic_expression)
+    console.log("axioms result: " + axioms_result);
     result = eval(logic_expression);
     console.log("result: " + result);
-    if (result) {
+    if (axioms_result) {
       contradiction = false;
-    } else {
+    } 
+    if (!result) {
       tautology = false;
     }
     console.log("===================");
   }
   var message = "contradiction: " + contradiction + "\ntautology: " + tautology + "\n";
-  if (tautology) {
+  if (contradiction) {
+    message += "principle of explosion\n";
+  }
+  else if (tautology) {
     message += "conclusion follows";
   }
   console.log(message);
