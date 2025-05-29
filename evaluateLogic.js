@@ -108,43 +108,40 @@ function extractPartsAndEvaluateLogic() {
   evaluateLogic(axioms_struct, c_struct)
 }
 
-function evaluateLogic(axioms, conclusion) {
-  let startTime = performance.now();
-  var variables = [...new Set(axioms.map(l => l.variables()).concat(conclusion.variables()).flat())];
-  var axioms_logic_expression = axioms.map(l => l.logicExpression()).join("&&")
-  var logic_expression = "!(" + axioms_logic_expression + ")||(" + conclusion.logicExpression() + ")";
-  evaluation = evaluateLogicExpression(variables, axioms_logic_expression, logic_expression);
-  var message = "contradiction: " + evaluation.contradiction + "\ntautology: " + evaluation.tautology + "\n";
-  if (evaluation.contradiction) {
-    message += "principle of explosion\n";
-  }
-  else if (evaluation.tautology) {
-    message += "conclusion follows";
-  }
-  evaluation.runTime = performance.now() - startTime;
+function initializeLogic(evaluation, axioms, conclusion) {
+  evaluation.variables = [...new Set(axioms.map(l => l.variables()).concat(conclusion.variables()).flat())];
+  evaluation.iterations = 2**evaluation.variables.length;
+  evaluation.axiomsLogicExpression = axioms.map(l => l.logicExpression()).join("&&")
+  evaluation.logicExpression = "!(" + evaluation.axiomsLogicExpression + ")||(" + conclusion.logicExpression() + ")";
   return evaluation;
 }
 
-function evaluateLogicExpression(variables, axioms_logic_expression, logic_expression) {
-  var contradiction = true;
-  var tautology = true;
-  iterations = 2**variables.length;
-  for (let i = 0; i < iterations; i++) {
-    i_tmp = i;
-    for (let j = 0; j < variables.length; j++) {
-      var_val = i_tmp % 2;
-      this[variables[j]] = var_val;
-      i_tmp = Math.floor(i_tmp/2);
-    }
-    axioms_result = eval(axioms_logic_expression)
-    result = eval(logic_expression);
-    if (axioms_result) {
-      contradiction = false;
-    } 
-    if (!result) {
-      tautology = false;
+function evaluateLogicStep(evaluation, chunk) {
+  startTime = performance.now();
+  if (evaluation.iterations <= 0) {
+    evaluation.complete = true;
+  } else {
+    for (i = 0; i < chunk; i++, --evaluation.iterations) {
+      i_tmp = evaluation.iterations;
+      for (let j = 0; j < evaluation.variables.length; j++) {
+        var_val = i_tmp % 2;
+        this[evaluation.variables[j]] = var_val;
+        i_tmp = Math.floor(i_tmp/2);
+      }
+      axioms_result = eval(evaluation.axiomsLogicExpression);
+      result = eval(evaluation.logicExpression);
+      if (axioms_result) {
+        evaluation.contradiction = false;
+      } 
+      if (!result) {
+        evaluation.tautology = false;
+      }
+      if (evaluation.iterations == 0) {
+        evaluation.complete = true;
+        break;
+      }
     }
   }
-  return new Evaluation(contradiction, tautology)
+  evaluation.runTime += performance.now()-startTime;
+  return evaluation;
 }
-

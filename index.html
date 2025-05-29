@@ -130,40 +130,50 @@
     }
   }
 
+
+  running_id = 0;
   function updateEvaluation() {
     let outcome = document.getElementById("outcome");
-    let evaluation = evaluateLogic(data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
-    let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
-    if (evaluation.contradiction) {
-      outcome.innerHTML = "Axioms are contradictory, so anything follows." + timeMessage;
-    } else if (evaluation.tautology) {
-      outcome.innerHTML = "Conclusion follows from axioms." + timeMessage;
-    } else {
-      outcome.innerHTML = "Axioms do not imply conclusion." + timeMessage;
+
+    var chunk = 10;
+    function capture(this_id) {
+      evaluation = {
+        variables: null,
+        axiomLogicExpression: null,
+        logicExpression: null,
+        runTime: 0,
+        complete: false,
+        contradiction: true,
+        tautology: true,
+        iterations: 0,
+      }
+      evaluation = initializeLogic(evaluation, data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
+      function doChunk() {
+        if(!evaluation.complete && this_id != running_id) {
+          let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
+          if (evaluation.contradiction === false) {
+            outcome.innerHTML = "Axioms are consistent." + timeMessage;
+          }
+          if (evaluation.tautology === false) {
+            outcome.innerHTML = "Axioms do not imply conclusion." + timeMessage;
+          }
+        } else if (evaluation.complete && this_id == running_id) {
+          let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
+          if (evaluation.contradiction === true) {
+            outcome.innerHTML = "Axioms are contradictory, so anything follows." + timeMessage;
+          } else if (evaluation.tautology === true) {
+            outcome.innerHTML = "Conclusion follows from axioms." + timeMessage;
+          } 
+        }
+        if (!evaluation.complete && this_id == running_id) {
+          evaluation = evaluateLogicStep(evaluation, chunk);
+          setTimeout(doChunk, 10)
+        } 
+      }
+      doChunk();
     }
-    /*let evaluation_contradiction = document.getElementById("evaluation_contradiction");
-    if (evaluation.contradiction) {
-      evaluation_contradiction.innerHTML = "True";
-    } else {
-      evaluation_contradiction.innerHTML = "False";
-    }
-    let evaluation_tautology = document.getElementById("evaluation_tautology");
-    if (evaluation.tautology) {
-      evaluation_tautology.innerHTML = "True";
-    } else {
-      evaluation_tautology.innerHTML = "False";
-    }*/
+    capture(++running_id);
   }
-
-  /*function clearEvaluation(evaluation) {
-    let outcome = document.getElementById("outcome");
-    outcome.innerHTML = "Uknown.";
-    let evaluation_contradiction = document.getElementById("evaluation_contradiction");
-    evaluation_contradiction.innerHTML = "Unknown";
-    let evaluation_tautology = document.getElementById("evaluation_tautology");
-    evaluation_tautology.innerHTML = "Unknown";
-  }*/
-
 </script>
 </head>
 <body onload="updateProps(); updateConds()">
