@@ -72,7 +72,10 @@ class Conditional {
 class Evaluation {
   contradiction;
   tautology;
+<<<<<<< Updated upstream
   runTime;
+=======
+>>>>>>> Stashed changes
   constructor(contradiction, tautology) {
     this.contradiction = contradiction;
     this.tautology = tautology;
@@ -125,7 +128,10 @@ function evaluateLogic(axioms, conclusion) {
     message += "conclusion follows";
   }
   console.log(message);
+<<<<<<< Updated upstream
   evaluation.runTime = performance.now() - startTime;
+=======
+>>>>>>> Stashed changes
   return evaluation;
 }
 
