@@ -88,7 +88,6 @@ function extractPartsAndEvaluateLogic() {
   let r1a_name = document.getElementsByName("rule1Antecedent")[0].value;
   let r1a_struct = new Proposition(r1an, r1a_name);
   let r1ac_struct = new Conjunction([r1a_struct]);
-  console.log("r1ac_struct propositions: " + r1ac_struct.propositions);
 
   let r1cn = document.getElementsByName("rule1ConsequentNegated")[0].checked;
   let r1c_name = document.getElementsByName("rule1Consequent")[0].value;
@@ -112,10 +111,8 @@ function extractPartsAndEvaluateLogic() {
 function evaluateLogic(axioms, conclusion) {
   let startTime = performance.now();
   var variables = [...new Set(axioms.map(l => l.variables()).concat(conclusion.variables()).flat())];
-  console.log("variables: " + variables);
   var axioms_logic_expression = axioms.map(l => l.logicExpression()).join("&&")
   var logic_expression = "!(" + axioms_logic_expression + ")||(" + conclusion.logicExpression() + ")";
-  console.log("logic expression: " + logic_expression);
   evaluation = evaluateLogicExpression(variables, axioms_logic_expression, logic_expression);
   var message = "contradiction: " + evaluation.contradiction + "\ntautology: " + evaluation.tautology + "\n";
   if (evaluation.contradiction) {
@@ -124,7 +121,6 @@ function evaluateLogic(axioms, conclusion) {
   else if (evaluation.tautology) {
     message += "conclusion follows";
   }
-  console.log(message);
   evaluation.runTime = performance.now() - startTime;
   return evaluation;
 }
@@ -133,27 +129,21 @@ function evaluateLogicExpression(variables, axioms_logic_expression, logic_expre
   var contradiction = true;
   var tautology = true;
   iterations = 2**variables.length;
-  console.log("iterations: " + iterations);
   for (let i = 0; i < iterations; i++) {
-    console.log("i: " + i);
     i_tmp = i;
     for (let j = 0; j < variables.length; j++) {
       var_val = i_tmp % 2;
       this[variables[j]] = var_val;
-      console.log(Proposition.variable_map[variables[j]] + " " + var_val);
       i_tmp = Math.floor(i_tmp/2);
     }
     axioms_result = eval(axioms_logic_expression)
-    console.log("axioms result: " + axioms_result);
     result = eval(logic_expression);
-    console.log("result: " + result);
     if (axioms_result) {
       contradiction = false;
     } 
     if (!result) {
       tautology = false;
     }
-    console.log("===================");
   }
   return new Evaluation(contradiction, tautology)
 }
