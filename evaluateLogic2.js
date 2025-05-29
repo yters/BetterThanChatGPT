@@ -1,126 +1,236 @@
+BigInt.prototype.toJSON = function () {
+  return Number(this);
+};
+
 class Proposition {
   static pmap = {};
-  static const #whitespace = /\s+/g;
-  static const #strip = /IF|THEN|->|IMPLIES|THEREFORE|NOT|AND|OR|[()]+/g;
+  static #whitespace_regex = /\s+/g;
+  static #strip_regex = /IF|THEN|->|IMPLIES|THEREFORE|NOT|AND|OR|[{}]|&&+/g;
+  static #first_bracket_regex = /^[^{}]*/;
   #name;
-  refCount;
-  constructor(name) {
-    if (Proposition.pmap[tname]) {
-      let out = Proposition.pmap[tname];
-      out.refCount++;
-      return out;
+  results = {};
+  mask = 0n;
+
+  static newOrOld(name) {
+    name = "{" + name + "}";
+    if (Proposition.pmap[name]) {
+      return Proposition.pmap[name];
     } else {
-      this.#name = tname;
-      this.refCount = 1;
-      Proposition.pmap[tname] = this;
+      return false;
     }
   }
 
-  remove() {
-    refCount--;
-    if (refCount < 1) {
-      delete Proposition.pmap[this.#name];
-    }
+  constructor(name) {
+    name = "{" + name + "}"
+    this.#name = name;
+    Proposition.pmap[name] = this;
   }
 
   getName() {
-    return #name;
+    return this.#name;
   }
 
   static cleanName(name) {
-    return name.replace(strip, ' ').replace(whitespace, ' ').trim();
+    return name.replaceAll(Proposition.#strip_regex, ' ').replaceAll(Proposition.#whitespace_regex, ' ').trim();
+  }
+
+  static matchingBracket (i, str) {
+    let count = 0;
+    for (; i < str.length; i++) {
+      let c = str.substr(i, 1);
+      if (c == "}") {
+        if (count == 0) {
+          return i;
+        } else {
+          count--;
+        }
+      } else if (c == "{") {
+        count++;
+      }
+    }
+    return -1;
+  }
+
+  static breakout (str) {
+    let out = [];
+    let sub = str.match(Proposition.#first_bracket_regex)[0];
+    out[0] = sub;
+    let count = 1;
+    for (let i = sub.length + 1; i < str.length; i = sub.length + 4) {
+      let sub = str.slice(i, Proposition.matchingBracket(i, str));
+      out[count++] = Proposition.breakout(sub);
+    }
+    return out;
+  }
+
+  static buildFrom (str) {
+    let data = Proposition.breakout(str.slice(1, -1));
+    let name = data.shift();
+    if (name === "NOT") {
+      return new Negation(buildFrom(data[1]));
+    }
+    if (name === "AND") {
+      return new Conjuction(data.map(d => buildFrom(d)));
+    }
+    if (name === "OR") {
+      return new Disjunction(data.map(d => buildFrom(d)));
+    }
+    if (name === "IMPLIES") {
+      return new Disjunction(buildFrom(data[0]), buildFrom(data[1]));
+    }
+    if (data.length > 0) {
+      return data.map(d => buildFrom(d));
+    }
+    name = Proposition.cleanName(name);
+    if (name === "") {
+      return null;
+    }
+    return new Claim(name);
   }
 }
 
-class Claim : Proposition {
+class Claim extends Proposition {
   static cmap = {};
-  assume = true;
+  static imap = {};
+  static index = 0n;
+  
   constructor(name) {
-    let tname = cleanName(name);
-    super(tname);
-    if (Claim.cmap[this.#name]) {
-      return Claim.cmap[this.#name];
+    let cname = Proposition.cleanName(name);
+    name = "{" + cname + "}" 
+    if (Claim.cmap[name]) {
+      return Claim.cmap[name];
     } else {
-      Claim.cmap[this.#name] = this;
+      super(cname);
+      name = this.getName();
+      Claim.cmap[name] = this;
+      let i = Claim.index++;
+      Claim.imap[name] = i;
+      this.mask = 1n << BigInt(i);
+      this.results[this.mask] = true;
+      this.results[0n] = false;
     }
   }
-
-  remove() {
-    super.remove();
-    if (refCount < 1) {
-      delete Claim.cmap[this.#name];
-   }
-  }
 }
 
-class Negation : Proposition {
+class Negation extends Proposition {
   #proposition
   constructor(proposition) {
-    super("NOT " + proposition.getName());
+    let name = "NOT" + proposition.getName();
+    let t = Proposition.newOrOld(name);
+    if (t) return t;
+    super(name);
     this.#proposition = proposition;
-    proposition.refCount++;
-  }
-
-  remove() {
-    super.remove();
-    #proposition.remove;
-    #proposition = null;
+    this.mask = proposition.mask;
+    Object.assign(this.results, proposition.results);
+    for (const [i, v] of Object.entries(this.results)) {
+      this.results[i] = !this.results[i];
+    }
   }
 }
 
 function sortArrayByProperties(toSort, byObject) {
+  let keys = Object.keys(byObject);
   return toSort.sort((a, b) => {
-    return byObject.indexOf(a) - byObject.indexOf(b);
+    return keys.indexOf(a) - keys.indexOf(b);
   });
 }
 
-class Conjunction : Proposition {
+function allBits (mask) {
+  mask = BigInt(mask);
+  let out = [];
+  let count = 1n;
+  while (mask != 0n) {
+    let n = mask & 1n;
+    if (n) {
+      out.push(count);
+    }
+    mask >>= 1n;
+    count <<= 1n;
+  }
+  return out;
+}
+
+function allCombinations (mask) {
+  let bits = allBits(mask);
+  //console.log("allBits:" + JSON.stringify(bits));
+  let out = [0n];
+  let sub = [];
+  for (let i = 0; i < bits.length; i++) {
+    sub.unshift(bits[i]);
+    for (j = 1; j < sub.length; j++) {
+      sub[j] |= bits[i];
+    }
+    out.push(...sub);
+  }
+  return out;
+}
+
+class Conjunction extends Proposition {
   #propositions;
   constructor(propositions) {
     let props = sortArrayByProperties(propositions, Proposition.pmap);
-    let name = props.map(function(prop) { prop.}).join(" AND ");
+    let name = "AND" + props.map(prop => prop.getName()).join("&&");
+    let t = Proposition.newOrOld(name);
+    if (t) return t;
     super(name);
     this.#propositions = props;
-  }
-
-  remove() {
-    super.remove();
-    #propositions.forEach(prop => prop.remove());
-    #propositions = [];
+    this.mask = this.#propositions.map(({mask}) => mask).reduce((accumulator, mask) => accumulator | mask);
+    let rlist = allCombinations(this.mask);
+    this.results = {};
+    for (const r of rlist) {
+      let raccumulation = this.#propositions[0].results[r & this.#propositions[0].mask];
+      for (let i = 1; i < this.#propositions.length && raccumulation; i++) {
+        raccumulation = this.#propositions[i].results[r & this.#propositions[i].mask];
+      }
+      this.results[r] = raccumulation;
+    }
   }
 }
 
-class Disjunction {
+class Disjunction extends Proposition {
   #propositions;
   constructor(propositions) {
     let props = sortArrayByProperties(propositions, Proposition.pmap);
-    let name = props.map(prop => prop.getName()).join(" OR ");
+    let name = "AND" + props.map(prop => prop.getName()).join("&&");
+    let t = Proposition.newOrOld(name);
+    if (t) return t;
     super(name);
     this.#propositions = props;
-  }
-
-  remove() {
-    super.remove();
-    #propositions.forEach(prop => prop.remove());
-    #propositions = [];
+    this.mask = this.#propositions.map(({mask}) => mask).reduce((accumulator, mask) => accumulator | mask);
+    let rlist = allCombinations(this.mask);
+    this.results = {};
+    for (const r of rlist) {
+      let raccumulation = this.#propositions[0].results[r & this.#propositions[0].mask];
+      for (let i = 1; i < this.#propositions.length && !raccumulation; i++) {
+        raccumulation = this.#propositions[i].results[r & this.#propositions[i].mask];
+      }
+      this.results[r] = raccumulation;
+    }
   }
 }
 
-class Conditional : Proposition {
+class Conditional extends Proposition {
   #antecedent;
   #consequent;
   constructor(antecedent, consequent) {
-    super (antecedent.getName() + " IMPLIES " + consequent.getName());
+    let name = "IMPLIES" + antecedent.getName() + "&&" + consequent.getName();
+    let t = Proposition.newOrOld(name);
+    if (t) return t;
+    super(name);
     this.#antecedent = antecedent;
     this.#consequent = consequent;
-  }
-  
-  remove() {
-    super();
-    #antecedent.remove();
-    #antecedent = null;
-    #consequent.remove();
-    #consequent = null;
+    this.mask = this.#antecedent.mask | this.#consequent.mask;
+    let rlist = allCombinations(this.mask);
+    //console.log("rlist:" + JSON.stringify(rlist));
+    this.results = {};
+    for (const r of rlist) {
+      this.results[r] = !this.#antecedent.results[r & this.#antecedent.mask] || this.#consequent.results[r & this.#consequent.mask];
+    }
+    /*console.log("antecedent:")
+    console.log(JSON.stringify(this.#antecedent.results));
+    console.log("consequent:" + this.#consequent.mask)
+    console.log(JSON.stringify(this.#consequent.results));
+    console.log(this.getName() + " : " + JSON.stringify(this.results));*/
   }
 }
 
@@ -128,65 +238,40 @@ class Evaluation {
   contradiction;
   tautology;
   runTime;
-  constructor(contradiction, tautology) {
+  constructor(contradiction, tautology, runTime) {
     this.contradiction = contradiction;
     this.tautology = tautology;
+    this.runTime = runTime;
   }
-}
-
-function evaluateLogic2(axioms, conclusion) {
-  let startTime = performance.now();
-  
-  Claim.cmap.forEach({assume} => assume = true;);
-  
 }
 
 function evaluateLogic(axioms, conclusion) {
   let startTime = performance.now();
-  var variables = [...new Set(axioms.map(l => l.variables()).concat(conclusion.variables()).flat())];
-  console.log("variables: " + variables);
-  var axioms_logic_expression = axioms.map(l => l.logicExpression()).join("&&")
-  var logic_expression = "!(" + axioms_logic_expression + ")||(" + conclusion.logicExpression() + ")";
-  console.log("logic expression: " + logic_expression);
-  evaluation = evaluateLogicExpression(variables, axioms_logic_expression, logic_expression);
-  var message = "contradiction: " + evaluation.contradiction + "\ntautology: " + evaluation.tautology + "\n";
-  if (evaluation.contradiction) {
-    message += "principle of explosion\n";
+  if (axioms.length < 1) {
+    return new Evaluation(true, true, performance.now() - startTime);
   }
-  else if (evaluation.tautology) {
-    message += "conclusion follows";
-  }
-  console.log(message);
-  evaluation.runTime = performance.now() - startTime;
-  return evaluation;
-}
-
-function evaluateLogicExpression(variables, axioms_logic_expression, logic_expression) {
+  let axioms_logic = new Conjunction(axioms);
+  let logic = new Disjunction([new Negation(axioms_logic), conclusion]);
+  
   var contradiction = true;
   var tautology = true;
-  iterations = 2**variables.length;
-  console.log("iterations: " + iterations);
-  for (let i = 0; i < iterations; i++) {
-    console.log("i: " + i);
-    i_tmp = i;
-    for (let j = 0; j < variables.length; j++) {
-      var_val = i_tmp % 2;
-      this[variables[j]] = var_val;
-      console.log(Proposition.variable_map[variables[j]] + " " + var_val);
-      i_tmp = Math.floor(i_tmp/2);
-    }
-    axioms_result = eval(axioms_logic_expression)
-    console.log("axioms result: " + axioms_result);
-    result = eval(logic_expression);
-    console.log("result: " + result);
-    if (axioms_result) {
-      contradiction = false;
-    } 
-    if (!result) {
-      tautology = false;
-    }
-    console.log("===================");
-  }
-  return new Evaluation(contradiction, tautology)
-}
 
+  let len = Object.keys(axioms_logic.results).length;
+  for (let i = 0; i < len; i++) {
+    if (axioms_logic.results[i]) {
+      contradiction = false;
+      break;
+    }
+  }
+
+  len = Object.keys(logic.results).length;
+  for (let i = 0; i < len; i++) {
+    if (!logic.results[i]) {
+      tautology = false;
+      break;
+    }
+  }
+  
+  let evaluation = new Evaluation(contradiction, tautology, performance.now() - startTime);
+  return evaluation;
+}
