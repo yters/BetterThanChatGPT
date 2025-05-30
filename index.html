@@ -51,7 +51,8 @@
   }
 
   function setURL() {
-    url.search = "?" + encodeURI(data.props.map(({name}) => name).join("&&") + "&&" + data.conds.map(({name}) => name).join("&&"));
+    console.log("form data: " + JSON.stringify(data));
+    url.search = "?" + encodeURI(data.props.map(prop => prop.getName()).join("&&") + "&&" + data.conds.map(prop => prop.getName()).join("&&"));
     history.replaceState(null, "", url.search);
     document.getElementById('shareable_link').href = "https://yters.github.io/BetterThanChatGPT/index.html" + url.search;
   }
@@ -156,7 +157,7 @@
 
 </script>
 </head>
-<body onload="updateProps(); updateConds(); document.getElementById('reset_link').href = url.origin + url.path;">
+<body onload="updateProps(); updateConds(); document.getElementById('reset_link').href = url.protocol + '//' + url.host + url.pathname;">
 
 <div class="announcement">
   <h1>Evaluate Logic</h1>

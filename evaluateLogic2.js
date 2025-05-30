@@ -52,42 +52,54 @@ class Proposition {
   }
 
   static breakout (str) {
+    console.log("breakout: " + str);
     let out = [];
     let sub = str.match(Proposition.#first_bracket_regex)[0];
     out[0] = sub;
     let count = 1;
-    for (let i = sub.length + 1; i < str.length; i = sub.length + 4) {
-      let sub = str.slice(i, Proposition.matchingBracket(i, str));
+    for (let i = sub.length + 4; i < str.length; i += sub.length + 4) {
+      let close = Proposition.matchingBracket(i, str);
+      if (close == -1) {
+        sub = str.slice(i);
+      } else {
+        sub = str.slice(i, close);
+      }
       out[count++] = Proposition.breakout(sub);
     }
     return out;
   }
 
   static buildFrom (str) {
+    console.log("buildfrom(" + typeof str + " " + JSON.stringify(str) + ")");
     let data = Proposition.breakout(str.slice(1, -1));
+    return Proposition.buildFromBreakout(data);
+  }
+
+  static buildFromBreakout (data) {
     let name = data.shift();
     if (name === "NOT") {
-      return new Negation(buildFrom(data[1]));
+      return new Negation(buildFromBreakout(data[0]));
     }
     if (name === "AND") {
-      return new Conjuction(data.map(d => buildFrom(d)));
+      return new Conjuction(data.map(d => buildFromBreakout(d)));
     }
     if (name === "OR") {
-      return new Disjunction(data.map(d => buildFrom(d)));
+      return new Disjunction(data.map(d => buildFromBreakout(d)));
     }
     if (name === "IMPLIES") {
-      return new Disjunction(buildFrom(data[0]), buildFrom(data[1]));
+      return new Conditional(Proposition.buildFromBreakout(data[0]), Proposition.buildFromBreakout(data[1]));
     }
     if (data.length > 0) {
-      return data.map(d => buildFrom(d));
-    }
-    name = Proposition.cleanName(name);
-    if (name === "") {
-      return null;
+      console.log("name: " + name + " data: " + JSON.stringify(data));
+      let out = data.map(d => Proposition.buildFromBreakout(d));
+      console.log("out: " + JSON.stringify(out));
+      return out;
     }
     return new Claim(name);
   }
 }
+
+
 
 class Claim extends Proposition {
   static cmap = {};
