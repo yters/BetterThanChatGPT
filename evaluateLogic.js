@@ -70,78 +70,60 @@ class Conditional {
 }
 
 class Evaluation {
-  contradiction;
-  tautology;
-  runTime;
-  constructor(contradiction, tautology) {
-    this.contradiction = contradiction;
-    this.tautology = tautology;
+  constructor(axioms, conclusion) {
+    // Initialize variables.
+    this.variables = [...new Set(
+      axioms.map(l => l.variables())
+      .concat(conclusion.variables())
+      .flat())
+    ];
+
+    // Initialize logic expressions.
+    this.axiomsLogicExpression = axioms.map(l => l.logicExpression()).join("&&")
+    this.logicExpression = "!(" + this.axiomsLogicExpression + ")||(" + conclusion.logicExpression() + ")";
+  
+    // Results report.
+    this.complete = false;
+    this.contradiction = true;
+    this.tautology = true;
+
+    // Step size.
+    this.chunk = 10;
+
+    // Completion countdown.
+    this.iterationsRemaining = 2**this.variables.length;
+    this.iterationsCompleted = 0;
+
+    // Runtime stats.
+    this.runTime = 0;
   }
-}
 
-function extractPartsAndEvaluateLogic() {
-  let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
-  let p1vName = document.getElementsByName("premise1Variable")[0].value;
-  let p1Struct = new Proposition(p1vn, p1vName);
-
-  let r1an = document.getElementsByName("rule1AntecedentNegated")[0].checked;
-  let r1aName = document.getElementsByName("rule1Antecedent")[0].value;
-  let r1aStruct = new Proposition(r1an, r1aName);
-  let r1acStruct = new Conjunction([r1aStruct]);
-
-  let r1cn = document.getElementsByName("rule1ConsequentNegated")[0].checked;
-  let r1cName = document.getElementsByName("rule1Consequent")[0].value;
-  let r1cStruct = new Proposition(r1cn, r1cName);
-  let r1cdStruct = new Disjunction([r1cStruct]);
-
-  let r1Struct = new Conditional(r1acStruct, r1cdStruct);
-
-  let cn = document.getElementsByName("conclusionNegated")[0].checked;
-  let cName = document.getElementsByName("conclusion")[0].value;
-  let cStruct = new Proposition(cn, cName);
-    
-  axiomsStruct = [
-    p1Struct,
-    r1Struct
-  ];
-
-  evaluateLogic(axiomsStruct, cStruct)
-}
-
-function initializeLogic(evaluation, axioms, conclusion) {
-  evaluation.variables = [...new Set(axioms.map(l => l.variables()).concat(conclusion.variables()).flat())];
-  evaluation.iterationsRemaining = 2**evaluation.variables.length;
-  evaluation.axiomsLogicExpression = axioms.map(l => l.logicExpression()).join("&&")
-  evaluation.logicExpression = "!(" + evaluation.axiomsLogicExpression + ")||(" + conclusion.logicExpression() + ")";
-  return evaluation;
-}
-
-function evaluateLogicStep(evaluation, chunk) {
-  startTime = performance.now();
-  if (evaluation.iterationsRemaining <= 0) {
-    evaluation.complete = true;
-  } else {
-    for (i = 0; i < chunk; i++, --evaluation.iterationsRemaining, ++evaluation.iterationsCompleted) {
-      iTmp = evaluation.iterationsRemaining;
-      for (let j = 0; j < evaluation.variables.length; j++) {
-        varVal = iTmp % 2;
-        this[evaluation.variables[j]] = varVal;
+  evaluateLogicStep() {
+    let startTime = performance.now();
+    for (let i = 0; i < this.chunk; i++, this.iterationsRemaining--, this.iterationsCompleted++) {
+      let iTmp = this.iterationsCompleted;
+      for (let j = 0; j < this.variables.length; j++) {
+        let varVal = iTmp % 2;
+        window[this.variables[j]] = varVal;
         iTmp = Math.floor(iTmp/2);
       }
-      axiomsResult = eval(evaluation.axiomsLogicExpression);
-      result = eval(evaluation.logicExpression);
+      let axiomsResult = eval(this.axiomsLogicExpression);
+      let result = eval(this.logicExpression);
       if (axiomsResult) {
-        evaluation.contradiction = false;
+        this.contradiction = false;
       } 
       if (!result) {
-        evaluation.tautology = false;
+        this.tautology = false;
       }
-      if (evaluation.iterationsRemaining == 0) {
-        evaluation.complete = true;
+      if (this.iterationsRemaining == 0) {
+        this.complete = true;
         break;
       }
     }
+    this.runTime += performance.now()-startTime;
   }
-  evaluation.runTime += performance.now()-startTime;
-  return evaluation;
+
+  estimate() {
+    return this.runTime / this.iterationsCompleted * this.iterationsRemaining;
+  }
 }

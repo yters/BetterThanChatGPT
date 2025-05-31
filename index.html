@@ -129,49 +129,70 @@
     }
   }
 
-  runningId = 0;
+  /*
+   *  Async to prevent evaluation from freezing browser.
+   *  Evaluation is interruptible, so can be replaced by a new evaluation.
+   *
+   *  Provides live evaluation report along with countdown timer.
+   */
+  runningId = 0; // ID tracks whether evaluation is current, and terminates if not.
   function updateEvaluation() {
-    let outcome = document.getElementById("outcome");
-    var chunk = 10;
+    // Captures variable values, so new evaluations can terminate old evaluations.
     function capture(thisId) {
-      evaluation = {
-        variables: null,
-        axiomLogicExpression: null,
-        logicExpression: null,
-        runTime: 0,
-        complete: false,
-        contradiction: true,
-        tautology: true,
-        iterationsCompleted: 0,
-        iterationsRemaining: 0,
-      }
-      evaluation = initializeLogic(evaluation, data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
+      let axioms = data.props.slice(0, -1).concat(data.conds);
+      let conclusion = data.props.at(-1);
+      let evaluation = new Evaluation(axioms, conclusion);
+
+      // Complete one step of evaluation, and update timer and report.
       function doChunk() {
-        let estimate = evaluation.runTime / evaluation.iterationsCompleted * evaluation.iterationsRemaining;
-        let message = "(" + estimate.toPrecision(3) + "ms)";
-        if (evaluation.contradiction === false) {
+
+        // Timer.
+        let message = "(" + evaluation.estimate().toPrecision(3) + "ms)";
+
+        /* 
+         *  Report what is known about axiom consistency.
+         *  Contradiction is determined as soon as a false evaluation is found.
+         *  Consistency is not known until all evaluations complete.
+         */
+        
+        if (!evaluation.contradiction) {
           message += "\nAxioms are consistent.";
         } else if (!evaluation.complete) {
           message += "\nUnknown if axioms are consistent.";
         } else {
             message += "\nAxioms are contradictory, so anything follows.";
         }
-        if (evaluation.tautology === false) {
+
+        /* 
+         *  Report what is known about argument validity.
+         *  Invalid arguments are detected as soon as a false evaluation is found.
+         *  Validity is not known until all evaluations complete.
+         */
+        
+        if (!evaluation.tautology) {
           message += "\nAxioms do not imply conclusion.";
         } else if (!evaluation.complete) {
           message += "\nUnknown if axioms imply conclusion.";
         } else {
           message += "\nConclusion follows from axioms.";
         }
+
+        // Outcome report HTML element, for writing timer and live report updates.
+        let outcome = document.getElementById("outcome");
         outcome.innerHTML = message;
 
+        // Create a new step in evaluation, if still current.
         if (!evaluation.complete && thisId == runningId) {
-          evaluation = evaluateLogicStep(evaluation, chunk);
+          evaluation.evaluateLogicStep();
           setTimeout(doChunk, 10)
         } 
       }
+
+      // Begin evaluation.
       doChunk();
     }
+
+    // Capture and create a new evaluation.
     capture(++runningId);
   }
 </script>
