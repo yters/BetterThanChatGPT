@@ -124,6 +124,6 @@ class Evaluation {
   }
 
   estimate() {
-    return this.runTime / this.iterationsCompleted * this.iterationsRemaining;
+    return this.runTime / (this.iterationsCompleted+1) * this.iterationsRemaining;
   }
 }
