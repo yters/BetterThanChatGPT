@@ -110,7 +110,7 @@ function extractPartsAndEvaluateLogic() {
 
 function initializeLogic(evaluation, axioms, conclusion) {
   evaluation.variables = [...new Set(axioms.map(l => l.variables()).concat(conclusion.variables()).flat())];
-  evaluation.iterations = 2**evaluation.variables.length;
+  evaluation.iterationsRemaining = 2**evaluation.variables.length;
   evaluation.axiomsLogicExpression = axioms.map(l => l.logicExpression()).join("&&")
   evaluation.logicExpression = "!(" + evaluation.axiomsLogicExpression + ")||(" + conclusion.logicExpression() + ")";
   return evaluation;
@@ -118,11 +118,11 @@ function initializeLogic(evaluation, axioms, conclusion) {
 
 function evaluateLogicStep(evaluation, chunk) {
   startTime = performance.now();
-  if (evaluation.iterations <= 0) {
+  if (evaluation.iterationsRemaining <= 0) {
     evaluation.complete = true;
   } else {
-    for (i = 0; i < chunk; i++, --evaluation.iterations) {
-      iTmp = evaluation.iterations;
+    for (i = 0; i < chunk; i++, --evaluation.iterationsRemaining, ++evaluation.iterationsCompleted) {
+      iTmp = evaluation.iterationsRemaining;
       for (let j = 0; j < evaluation.variables.length; j++) {
         varVal = iTmp % 2;
         this[evaluation.variables[j]] = varVal;
@@ -136,7 +136,7 @@ function evaluateLogicStep(evaluation, chunk) {
       if (!result) {
         evaluation.tautology = false;
       }
-      if (evaluation.iterations == 0) {
+      if (evaluation.iterationsRemaining == 0) {
         evaluation.complete = true;
         break;
       }

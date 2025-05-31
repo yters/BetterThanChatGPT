@@ -132,7 +132,6 @@
   runningId = 0;
   function updateEvaluation() {
     let outcome = document.getElementById("outcome");
-
     var chunk = 10;
     function capture(thisId) {
       evaluation = {
@@ -143,32 +142,29 @@
         complete: false,
         contradiction: true,
         tautology: true,
-        iterations: 0,
+        iterationsCompleted: 0,
+        iterationsRemaining: 0,
       }
       evaluation = initializeLogic(evaluation, data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
       function doChunk() {
-        if(!evaluation.complete && thisId != runningId) {
-          let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
-          let message = "";
-          if (evaluation.contradiction === false) {
-            message += "Axioms are consistent." + timeMessage;
-          }
-          if (evaluation.tautology === false) {
-            message += "Axioms do not imply conclusion." + timeMessage;
-          } else {
-            message += "Unknown if axioms imply conclusion." + timeMessage;
-          }
-          outcome.innerHTML = message;
-        } else if (evaluation.complete && thisId == runningId) {
-          let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
-          if (evaluation.contradiction === true) {
-            outcome.innerHTML = "Axioms are contradictory, so anything follows." + timeMessage;
-          } else if (evaluation.tautology === true) {
-            outcome.innerHTML = "Conclusion follows from axioms." + timeMessage;
-          } else {
-            outcome.innerHTML = "Axioms do not imply conclusion." + timeMessage;
-          }
+        let estimate = evaluation.runTime / evaluation.iterationsCompleted * evaluation.iterationsRemaining;
+        let message = "(" + estimate.toPrecision(3) + "ms)";
+        if (evaluation.contradiction === false) {
+          message += "\nAxioms are consistent.";
+        } else if (!evaluation.complete) {
+          message += "\nUnknown if axioms are consistent.";
+        } else {
+            message += "\nAxioms are contradictory, so anything follows.";
         }
+        if (evaluation.tautology === false) {
+          message += "\nAxioms do not imply conclusion.";
+        } else if (!evaluation.complete) {
+          message += "\nUnknown if axioms imply conclusion.";
+        } else {
+          message += "\nConclusion follows from axioms.";
+        }
+        outcome.innerHTML = message;
+
         if (!evaluation.complete && thisId == runningId) {
           evaluation = evaluateLogicStep(evaluation, chunk);
           setTimeout(doChunk, 10)
