@@ -129,7 +129,6 @@
     }
   }
 
-
   runningId = 0;
   function updateEvaluation() {
     let outcome = document.getElementById("outcome");
@@ -150,19 +149,25 @@
       function doChunk() {
         if(!evaluation.complete && thisId != runningId) {
           let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
+          let message = "";
           if (evaluation.contradiction === false) {
-            outcome.innerHTML = "Axioms are consistent." + timeMessage;
+            message += "Axioms are consistent." + timeMessage;
           }
           if (evaluation.tautology === false) {
-            outcome.innerHTML = "Axioms do not imply conclusion." + timeMessage;
+            message += "Axioms do not imply conclusion." + timeMessage;
+          } else {
+            message += "Unknown if axioms imply conclusion." + timeMessage;
           }
+          outcome.innerHTML = message;
         } else if (evaluation.complete && thisId == runningId) {
           let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
           if (evaluation.contradiction === true) {
             outcome.innerHTML = "Axioms are contradictory, so anything follows." + timeMessage;
           } else if (evaluation.tautology === true) {
             outcome.innerHTML = "Conclusion follows from axioms." + timeMessage;
-          } 
+          } else {
+            outcome.innerHTML = "Axioms do not imply conclusion." + timeMessage;
+          }
         }
         if (!evaluation.complete && thisId == runningId) {
           evaluation = evaluateLogicStep(evaluation, chunk);
