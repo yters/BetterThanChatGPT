@@ -10,10 +10,10 @@
     text-align: center;
     padding: 8px;
   }
-  #prop_true {
+  #propTrue {
     background-color: lightgreen
   }
-  #prop_false {
+  #propFalse {
     background-color: pink
   }
   table, th, td {
@@ -63,7 +63,7 @@
     url.search = "?" + encodeURI(ds);
 
     history.replaceState(null, "", url.search);
-    document.getElementById('shareable_link').href = "https://yters.github.io/BetterThanChatGPT/index.html" + url.search;
+    document.getElementById('shareableLink').href = "https://yters.github.io/BetterThanChatGPT/index.html" + url.search;
   }
 
   function updateProps() {
@@ -79,7 +79,7 @@
         "<td><button class='delete' onclick='deleteProp(" + i + ");''>Del</button></td></tr>";
       i++;
     }
-    document.getElementById("list_props").querySelector('tbody').innerHTML = tbody;
+    document.getElementById("listProps").querySelector('tbody').innerHTML = tbody;
     updateEvaluation();
   }
 
@@ -93,19 +93,19 @@
         "<td><button class='delete' onclick='deleteCond(" + i + ");''>Del</button></td></tr>";
       i++;
     }
-    document.getElementById("list_conds").querySelector('tbody').innerHTML = tbody;
+    document.getElementById("listConds").querySelector('tbody').innerHTML = tbody;
     updateEvaluation();
   }
   
   function addProp(negated) {
-    let prop = new Proposition(negated, document.getElementById('prop_input').value);
+    let prop = new Proposition(negated, document.getElementById('propInput').value);
     data.props.push(prop);
     updateProps();
   }
 
   function addCond() {
-    let ante = new Proposition(document.getElementById('cond_ante_true').value == "true" ? false : true, document.getElementById('cond_ante').value);
-    let cons = new Proposition(document.getElementById('cond_cons_true').value == "true" ? false : true, document.getElementById('cond_cons').value);
+    let ante = new Proposition(document.getElementById('condAnteTrue').value == "true" ? false : true, document.getElementById('condAnte').value);
+    let cons = new Proposition(document.getElementById('condConsTrue').value == "true" ? false : true, document.getElementById('condCons').value);
     let cond = new Conditional(ante, cons);
     data.conds.push(cond);
     updateConds();
@@ -130,12 +130,12 @@
   }
 
 
-  running_id = 0;
+  runningId = 0;
   function updateEvaluation() {
     let outcome = document.getElementById("outcome");
 
     var chunk = 10;
-    function capture(this_id) {
+    function capture(thisId) {
       evaluation = {
         variables: null,
         axiomLogicExpression: null,
@@ -148,7 +148,7 @@
       }
       evaluation = initializeLogic(evaluation, data.props.slice(0, -1).concat(data.conds), data.props.at(-1));
       function doChunk() {
-        if(!evaluation.complete && this_id != running_id) {
+        if(!evaluation.complete && thisId != runningId) {
           let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
           if (evaluation.contradiction === false) {
             outcome.innerHTML = "Axioms are consistent." + timeMessage;
@@ -156,7 +156,7 @@
           if (evaluation.tautology === false) {
             outcome.innerHTML = "Axioms do not imply conclusion." + timeMessage;
           }
-        } else if (evaluation.complete && this_id == running_id) {
+        } else if (evaluation.complete && thisId == runningId) {
           let timeMessage = " (" + evaluation.runTime.toPrecision(3) + "ms)";
           if (evaluation.contradiction === true) {
             outcome.innerHTML = "Axioms are contradictory, so anything follows." + timeMessage;
@@ -164,14 +164,14 @@
             outcome.innerHTML = "Conclusion follows from axioms." + timeMessage;
           } 
         }
-        if (!evaluation.complete && this_id == running_id) {
+        if (!evaluation.complete && thisId == runningId) {
           evaluation = evaluateLogicStep(evaluation, chunk);
           setTimeout(doChunk, 10)
         } 
       }
       doChunk();
     }
-    capture(++running_id);
+    capture(++runningId);
   }
 </script>
 </head>
@@ -183,12 +183,12 @@
 
 <div>
 <p>
-  Proposition: <input type="text" id="prop_input" value="all crows are black"></input> is 
-  <button id="prop_true" onclick="addProp(false)">TRUE</button> / <button id="prop_false" onclick="addProp(true)">FALSE</button>
+  Proposition: <input type="text" id="propInput" value="all crows are black"></input> is 
+  <button id="propTrue" onclick="addProp(false)">TRUE</button> / <button id="propFalse" onclick="addProp(true)">FALSE</button>
 </p>
 </div>
 <div>
-  <table id="list_props">
+  <table id="listProps">
     <thead><tr><th>True?</th><th>Proposition</th></th><th>Actions</th></tr></thead>
     <tbody>
       <tr><td>False</td><td>all ravens are black</td><td></td></tr>
@@ -198,21 +198,21 @@
 <div>
   <p>
     Condition: 
-    <select id="cond_ante_true" value="If">
+    <select id="condAnteTrue" value="If">
       <option value="true">If</option>
       <option value="false">If not</option>
     </input> 
-    <input type="text" id="cond_ante" value="all crows are black"></input> 
-    <select id="cond_cons_true" value="then">
+    <input type="text" id="condAnte" value="all crows are black"></input> 
+    <select id="condConsTrue" value="then">
       <option value="true">then</option>
       <option value="false">then not</option>
     </input> 
-    <input type="text" id="cond_cons" value="all ravens are black"></input>
-    <button id="cond_add" onclick="addCond()">ADD</button>
+    <input type="text" id="condCons" value="all ravens are black"></input>
+    <button id="condAdd" onclick="addCond()">ADD</button>
   </p>
 </div>
 <div>
-  <table id="list_conds">
+  <table id="listConds">
     <thead><tr><th>Condition</th><th>Actions</th></tr></thead>
     <tbody>
       <tr><td>If "all crows are black" then <span class="false">not</span> "all ravens are black"</td><td></td></tr>
@@ -230,15 +230,15 @@
       Unknown.
     </u>
   </p>
-  <!--<table id="evaluation_properties">
+  <!--<table id="evaluationProperties">
     <thead><tr><th>Property</th><th>Value</th></tr></thead>
     <tbody>
-      <tr><td>Axioms form contradiction</td><td id="evaluation_contradiction">Unknown</td></tr>
-      <tr><td>Argument is a tautology</td><td id="evaluation_tautology">Unknown</td></tr>
+      <tr><td>Axioms form contradiction</td><td id="evaluationContradiction">Unknown</td></tr>
+      <tr><td>Argument is a tautology</td><td id="evaluationTautology">Unknown</td></tr>
     </tbody>
   </table>-->
 <div>
-  <p><button class="evaluate" onclick="evaluateAll();">Evaluate!</button> <a id="shareable_link" href="">Shareable Link</a></p>
+  <p><button class="evaluate" onclick="evaluateAll();">Evaluate!</button> <a id="shareableLink" href="">Shareable Link</a></p>
 </div>
 </body>
 </html>

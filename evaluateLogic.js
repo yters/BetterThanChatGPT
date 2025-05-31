@@ -1,19 +1,19 @@
 class Proposition {
   static number = 0;
-  static name_map = {};
-  static variable_map = {};
+  static nameMap = {};
+  static variableMap = {};
   negated;
   name;
   variable;
   constructor(negated, name) {
     this.negated = negated;
     this.name = name;
-    if (Proposition.name_map[name]) {
-      this.variable = Proposition.name_map[name];
+    if (Proposition.nameMap[name]) {
+      this.variable = Proposition.nameMap[name];
     } else {
       this.variable = "P" + Proposition.number++;
-      Proposition.name_map[name] = this.variable;
-      Proposition.variable_map[this.variable] = name;
+      Proposition.nameMap[name] = this.variable;
+      Proposition.variableMap[this.variable] = name;
     }
   }
   logicExpression() {
@@ -81,31 +81,31 @@ class Evaluation {
 
 function extractPartsAndEvaluateLogic() {
   let p1vn = document.getElementsByName("premise1VariableNegated")[0].checked;
-  let p1v_name = document.getElementsByName("premise1Variable")[0].value;
-  let p1_struct = new Proposition(p1vn, p1v_name);
+  let p1vName = document.getElementsByName("premise1Variable")[0].value;
+  let p1Struct = new Proposition(p1vn, p1vName);
 
   let r1an = document.getElementsByName("rule1AntecedentNegated")[0].checked;
-  let r1a_name = document.getElementsByName("rule1Antecedent")[0].value;
-  let r1a_struct = new Proposition(r1an, r1a_name);
-  let r1ac_struct = new Conjunction([r1a_struct]);
+  let r1aName = document.getElementsByName("rule1Antecedent")[0].value;
+  let r1aStruct = new Proposition(r1an, r1aName);
+  let r1acStruct = new Conjunction([r1aStruct]);
 
   let r1cn = document.getElementsByName("rule1ConsequentNegated")[0].checked;
-  let r1c_name = document.getElementsByName("rule1Consequent")[0].value;
-  let r1c_struct = new Proposition(r1cn, r1c_name);
-  let r1cd_struct = new Disjunction([r1c_struct]);
+  let r1cName = document.getElementsByName("rule1Consequent")[0].value;
+  let r1cStruct = new Proposition(r1cn, r1cName);
+  let r1cdStruct = new Disjunction([r1cStruct]);
 
-  let r1_struct = new Conditional(r1ac_struct, r1cd_struct);
+  let r1Struct = new Conditional(r1acStruct, r1cdStruct);
 
   let cn = document.getElementsByName("conclusionNegated")[0].checked;
-  let c_name = document.getElementsByName("conclusion")[0].value;
-  let c_struct = new Proposition(cn, c_name);
+  let cName = document.getElementsByName("conclusion")[0].value;
+  let cStruct = new Proposition(cn, cName);
     
-  axioms_struct = [
-    p1_struct,
-    r1_struct
+  axiomsStruct = [
+    p1Struct,
+    r1Struct
   ];
 
-  evaluateLogic(axioms_struct, c_struct)
+  evaluateLogic(axiomsStruct, cStruct)
 }
 
 function initializeLogic(evaluation, axioms, conclusion) {
@@ -122,15 +122,15 @@ function evaluateLogicStep(evaluation, chunk) {
     evaluation.complete = true;
   } else {
     for (i = 0; i < chunk; i++, --evaluation.iterations) {
-      i_tmp = evaluation.iterations;
+      iTmp = evaluation.iterations;
       for (let j = 0; j < evaluation.variables.length; j++) {
-        var_val = i_tmp % 2;
-        this[evaluation.variables[j]] = var_val;
-        i_tmp = Math.floor(i_tmp/2);
+        varVal = iTmp % 2;
+        this[evaluation.variables[j]] = varVal;
+        iTmp = Math.floor(iTmp/2);
       }
-      axioms_result = eval(evaluation.axiomsLogicExpression);
+      axiomsResult = eval(evaluation.axiomsLogicExpression);
       result = eval(evaluation.logicExpression);
-      if (axioms_result) {
+      if (axiomsResult) {
         evaluation.contradiction = false;
       } 
       if (!result) {
