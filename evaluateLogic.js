@@ -88,7 +88,7 @@ class Evaluation {
     this.tautology = true;
 
     // Step size.
-    this.chunk = 10;
+    this.chunk = 100;
 
     // Completion countdown.
     this.iterationsRemaining = 2**this.variables.length;
@@ -96,10 +96,12 @@ class Evaluation {
 
     // Runtime stats.
     this.runTime = 0;
+    this.startTime = performance.now();
   }
 
   evaluateLogicStep() {
-    let startTime = performance.now();
+    this.runTime += performance.now()-this.startTime;
+    this.startTime = performance.now();
     for (let i = 0; i < this.chunk; i++, this.iterationsRemaining--, this.iterationsCompleted++) {
       let iTmp = this.iterationsCompleted;
       for (let j = 0; j < this.variables.length; j++) {
@@ -120,7 +122,6 @@ class Evaluation {
         break;
       }
     }
-    this.runTime += performance.now()-startTime;
   }
 
   estimate() {
