@@ -99,24 +99,57 @@ class Evaluation {
     this.startTime = performance.now();
   }
 
+
+  /*
+   * Evaluates a chunk of the truth table rows.
+   * Uses binary decomposition of current iteration
+   * to assign truth values to the variables.
+   */
   evaluateLogicStep() {
+    // Increment runtime counter.
     this.runTime += performance.now()-this.startTime;
     this.startTime = performance.now();
-    for (let i = 0; i < this.chunk; i++, this.iterationsRemaining--, this.iterationsCompleted++) {
+
+    // Evaluate a chunk of truth table rows.
+    for (
+      let i = 0; 
+      i < this.chunk; 
+      i++, 
+      this.iterationsRemaining--, 
+      this.iterationsCompleted++
+    ) {
+
+      /* 
+       * Assign all variable truth values for row.
+       *
+       * Uses binary decomposition of current iteration.
+       * Since iterations go from 0 to 2**variables.length-1,
+       * all possible truth assignments are covered.
+       */
       let iTmp = this.iterationsCompleted;
       for (let j = 0; j < this.variables.length; j++) {
         let varVal = iTmp % 2;
         window[this.variables[j]] = varVal;
         iTmp = Math.floor(iTmp/2);
       }
+
+      // Evaluate the axioms to detect contradiction.
       let axiomsResult = eval(this.axiomsLogicExpression);
-      let result = eval(this.logicExpression);
+
       if (axiomsResult) {
         this.contradiction = false;
       } 
+
+      // Evaluate the complete argument to detect if 
+      // conclusion doesn't follow from axioms.
+      let result = eval(this.logicExpression);
+
       if (!result) {
         this.tautology = false;
       }
+
+      // Stop evaluating if all truth table rows 
+      // have been completed.
       if (this.iterationsRemaining == 0) {
         this.complete = true;
         break;
@@ -124,7 +157,12 @@ class Evaluation {
     }
   }
 
+  /*
+   * Estimate how much longer truth table evaluation will take.
+   */
   estimate() {
-    return this.runTime / (this.iterationsCompleted+1) * this.iterationsRemaining;
+    let inverseSpeed = this.runTime / (this.iterationsCompleted+1);
+    let remainingTime = inverseSpeed * this.iterationsRemaining;
+    return remainingTime;
   }
 }
