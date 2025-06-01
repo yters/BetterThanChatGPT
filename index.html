@@ -91,6 +91,7 @@
   }
 
   function updateConc() {
+    setCookies();
     tbody = "";
     if (data.conc) {
       tbody = "<tr><td>" + (data.conc.negated ? '<span class="false">False</span>' : '<span class="true">True</span>') + "</td>" +
