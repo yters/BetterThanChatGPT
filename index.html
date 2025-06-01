@@ -53,7 +53,9 @@
       let cons = new Proposition(data.conds[i].consequent.negated, data.conds[i].consequent.name);
       data.conds[i] = new Conditional(ante, cons);
     }
-    data.conc = new Proposition(data.conc.negated, data.conc.name);
+    if (data.conc) {
+      data.conc = new Proposition(data.conc.negated, data.conc.name);
+    }
   }    
 
   function setCookies() {
@@ -140,14 +142,6 @@
   function deleteCond(number) {
     data.conds.splice(number, 1);
     updateConds();
-  }
-
-  function evaluateAll() {
-    if (data.props.length < 1 || data.props.length + data.conds.length < 2) {
-      alert("At least one proposition (ie. the conclusion) and at least one other proposition or condition are required.");
-    } else {
-      updateEvaluation();
-    }
   }
 
   /*
@@ -242,19 +236,6 @@
   </table>
 </div>
 <div>
-<p>
-  Conclusion: <input type="text" id="concInput" value="all ravens are black"></input> is 
-  <button id="concTrue" onclick="setConc(false)">TRUE</button> / <button id="concFalse" onclick="setConc(true)">FALSE</button>
-</p>
-</div>
-<div>
-  <table id="showConc">
-    <thead><tr><th>True?</th><th>Conclusion</th></th><th>Actions</th></tr></thead>
-    <tbody>
-    </tbody>
-  </table>
-</div>
-<div>
   <p>
     Condition: 
     <select id="condAnteTrue" value="If">
@@ -279,6 +260,19 @@
   </table>
 </div>
 <div>
+<p>
+  Conclusion: <input type="text" id="concInput" value="all ravens are black"></input> is 
+  <button id="concTrue" onclick="setConc(false)">TRUE</button> / <button id="concFalse" onclick="setConc(true)">FALSE</button>
+</p>
+</div>
+<div>
+  <table id="showConc">
+    <thead><tr><th>True?</th><th>Conclusion</th></th><th>Actions</th></tr></thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+<div>
   <p>
     <b>
       Evaluation:
@@ -297,7 +291,7 @@
     </tbody>
   </table>-->
 <div>
-  <p><button class="evaluate" onclick="evaluateAll();">Evaluate!</button> <a id="shareableLink" href="">Shareable Link</a></p>
+  <p><button class="evaluate" onclick="updateEvaluation();">Evaluate!</button> <a id="shareableLink" href="">Shareable Link</a></p>
 </div>
 </body>
 </html>

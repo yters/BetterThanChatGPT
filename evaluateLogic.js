@@ -82,9 +82,12 @@ class Evaluation {
     }
 
     // Initialize logic expressions.
-    this.axiomsLogicExpression = axioms.map(l => l.logicExpression()).join("&&")
+    this.axiomsLogicExpression = "true";
+    if (axioms.length > 0) {
+      this.axiomsLogicExpression = axioms.map(l => l.logicExpression()).join("&&")
+    }
     if (!conclusion) {
-      this.logicExpression = "!(" + this.axiomsLogicExpression + ")||(" + this.axiomsLogicExpression + ")";
+      this.logicExpression = "!(" + this.axiomsLogicExpression + ")||(true)";
     } else {
       this.logicExpression = "!(" + this.axiomsLogicExpression + ")||(" + conclusion.logicExpression() + ")";
     }
