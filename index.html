@@ -40,6 +40,7 @@
       data = JSON.parse(result[1]);
     } else {
       data.props = [];
+      data.conc  = null;
       data.conds = [];
     }
   } else {
@@ -47,6 +48,7 @@
     for (let i = 0; i < data.props.length; i++) {
       data.props[i] = new Proposition(data.props[i].negated, data.props[i].name);
     }
+    data.conc = new Proposition(data.conc.negated, data.conc.name);
     for (let i = 0; i < data.conds.length; i++) {
       let ante = new Proposition(data.conds[i].antecedent.negated, data.conds[i].antecedent.name);
       let cons = new Proposition(data.conds[i].consequent.negated, data.conds[i].consequent.name);
@@ -71,15 +73,23 @@
     let tbody = "";
     let i = 0;
     for (const prop of data.props) {
-      if (i == data.props.length - 1) {
-        tbody += "<tr><th colspan='3'><em>Conclusion</em></th></tr>";
-      }
       tbody += "<tr><td>" + (prop.negated ? '<span class="false">False</span>' : '<span class="true">True</span>') + "</td>" +
         "<td>" + prop.name + "</td>" +
         "<td><button class='delete' onclick='deleteProp(" + i + ");''>Del</button></td></tr>";
       i++;
     }
     document.getElementById("listProps").querySelector('tbody').innerHTML = tbody;
+    updateEvaluation();
+  }
+
+  function updateConc() {
+    tbody = "";
+    if (data.conc) {
+      tbody = "<tr><td>" + (data.conc.negated ? '<span class="false">False</span>' : '<span class="true">True</span>') + "</td>" +
+        "<td>" + data.conc.name + "</td>" +
+        "<td><button class='delete' onclick='deleteConc();''>Del</button></td></tr>";
+    }
+    document.getElementById("showConc").querySelector('tbody').innerHTML = tbody;
     updateEvaluation();
   }
 
@@ -103,6 +113,12 @@
     updateProps();
   }
 
+  function setConc(negated) {
+    let conc = new Proposition(negated, document.getElementById('concInput').value);
+    data.conc = conc;
+    updateConc();
+  }
+
   function addCond() {
     let ante = new Proposition(document.getElementById('condAnteTrue').value == "true" ? false : true, document.getElementById('condAnte').value);
     let cons = new Proposition(document.getElementById('condConsTrue').value == "true" ? false : true, document.getElementById('condCons').value);
@@ -114,6 +130,11 @@
   function deleteProp(number) {
     data.props.splice(number, 1);
     updateProps();
+  }
+
+  function deleteConc() {
+    data.conc = null;
+    updateConc()
   }
 
   function deleteCond(number) {
@@ -130,17 +151,20 @@
   }
 
   /*
+   *  Evaluate the axioms for contradiction, and whether 
+   *  the conclusion follows from the axioms.
+   *
    *  Async to prevent evaluation from freezing browser.
    *  Evaluation is interruptible, so can be replaced by a new evaluation.
    *
    *  Provides live evaluation report along with countdown timer.
    */
-  runningId = 0; // ID tracks whether evaluation is current, and terminates if not.
+  var runningId = 0; // ID tracks whether evaluation is current, and terminates if not.
   function updateEvaluation() {
     // Captures variable values, so new evaluations can terminate old evaluations.
     function capture(thisId) {
-      let axioms = data.props.slice(0, -1).concat(data.conds);
-      let conclusion = data.props.at(-1);
+      let axioms = data.props.concat(data.conds);
+      let conclusion = data.conc;
       let evaluation = new Evaluation(axioms, conclusion);
 
       // Complete one step of evaluation, and update timer and report.
@@ -214,6 +238,19 @@
     <thead><tr><th>True?</th><th>Proposition</th></th><th>Actions</th></tr></thead>
     <tbody>
       <tr><td>False</td><td>all ravens are black</td><td></td></tr>
+    </tbody>
+  </table>
+</div>
+<div>
+<p>
+  Conclusion: <input type="text" id="concInput" value="all ravens are black"></input> is 
+  <button id="concTrue" onclick="setConc(false)">TRUE</button> / <button id="concFalse" onclick="setConc(true)">FALSE</button>
+</p>
+</div>
+<div>
+  <table id="showConc">
+    <thead><tr><th>True?</th><th>Conclusion</th></th><th>Actions</th></tr></thead>
+    <tbody>
     </tbody>
   </table>
 </div>
