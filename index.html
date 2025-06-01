@@ -48,12 +48,12 @@
     for (let i = 0; i < data.props.length; i++) {
       data.props[i] = new Proposition(data.props[i].negated, data.props[i].name);
     }
-    data.conc = new Proposition(data.conc.negated, data.conc.name);
     for (let i = 0; i < data.conds.length; i++) {
       let ante = new Proposition(data.conds[i].antecedent.negated, data.conds[i].antecedent.name);
       let cons = new Proposition(data.conds[i].consequent.negated, data.conds[i].consequent.name);
       data.conds[i] = new Conditional(ante, cons);
     }
+    data.conc = new Proposition(data.conc.negated, data.conc.name);
   }    
 
   function setCookies() {
@@ -221,7 +221,7 @@
   }
 </script>
 </head>
-<body onload="updateProps(); updateConds()">
+<body onload="updateProps(); updateConds(); updateConc();">
 
 <div class="announcement">
   <h1>Evaluate Logic</h1>

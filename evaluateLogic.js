@@ -74,13 +74,20 @@ class Evaluation {
     // Initialize variables.
     this.variables = [...new Set(
       axioms.map(l => l.variables())
-      .concat(conclusion.variables())
       .flat())
     ];
 
+    if (conclusion) {
+      this.variables.concat(conclusion.variables());
+    }
+
     // Initialize logic expressions.
     this.axiomsLogicExpression = axioms.map(l => l.logicExpression()).join("&&")
-    this.logicExpression = "!(" + this.axiomsLogicExpression + ")||(" + conclusion.logicExpression() + ")";
+    if (!conclusion) {
+      this.logicExpression = "!(" + this.axiomsLogicExpression + ")||(" + this.axiomsLogicExpression + ")";
+    } else {
+      this.logicExpression = "!(" + this.axiomsLogicExpression + ")||(" + conclusion.logicExpression() + ")";
+    }
   
     // Results report.
     this.complete = false;
