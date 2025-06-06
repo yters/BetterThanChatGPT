@@ -72,13 +72,14 @@ class Conditional {
 class Evaluation {
   constructor(axioms, conclusion) {
     // Initialize variables.
-    this.variables = [...new Set(
+    this.variables = []
+    this.variables = this.variables.concat([...new Set(
       axioms.map(l => l.variables())
       .flat())
-    ];
+    ]);
 
     if (conclusion) {
-      this.variables.concat(conclusion.variables());
+      this.variables = this.variables.concat(conclusion.variables());
     }
 
     // Initialize logic expressions.
