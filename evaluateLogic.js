@@ -73,14 +73,15 @@ class Evaluation {
   constructor(axioms, conclusion) {
     // Initialize variables.
     this.variables = []
-    this.variables = this.variables.concat([...new Set(
-      axioms.map(l => l.variables())
-      .flat())
-    ]);
+    this.variables = this.variables.concat(
+      axioms.map(l => l.variables()).flat()
+    );
 
     if (conclusion) {
       this.variables = this.variables.concat(conclusion.variables());
     }
+
+    this.variables = [...new Set(this.variables)];
 
     // Initialize logic expressions.
     this.axiomsLogicExpression = "true";
@@ -102,7 +103,7 @@ class Evaluation {
     this.chunk = 100;
 
     // Completion countdown.
-    this.iterationsRemaining = 2**this.variables.length;
+    this.iterationsRemaining = 2**this.variables.length-1;
     this.iterationsCompleted = 0;
 
     // Runtime stats.
@@ -126,7 +127,7 @@ class Evaluation {
       let i = 0; 
       i < this.chunk; 
       i++, 
-      this.iterationsRemaining--, 
+      --this.iterationsRemaining, 
       this.iterationsCompleted++
     ) {
 
@@ -152,7 +153,8 @@ class Evaluation {
       } 
 
       // Evaluate the complete argument to detect if 
-      // conclusion doesn't follow from axioms.
+      // conclusion doesn't follow from or is contradicted 
+      // by axioms.
       let result = eval(this.logicExpression);
 
       if (!result) {

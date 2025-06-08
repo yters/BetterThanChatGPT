@@ -230,7 +230,7 @@
 
 <div>
 <p>
-  Proposition: <input type="text" id="propInput" value="all crows are black"></input> is 
+  <b>Proposition:</b> <input type="text" id="propInput" value="all crows are black"></input> is 
   <button id="propTrue" onclick="addProp(false)">TRUE</button> / <button id="propFalse" onclick="addProp(true)">FALSE</button>
 </p>
 </div>
@@ -244,7 +244,7 @@
 </div>
 <div>
   <p>
-    Condition: 
+    <b>Condition:</b>
     <select id="condAnteTrue" value="If">
       <option value="true">If</option>
       <option value="false">If not</option>
@@ -268,7 +268,7 @@
 </div>
 <div>
 <p>
-  Conclusion: <input type="text" id="concInput" value="all ravens are black"></input> is 
+  <b>Conclusion:</b> <input type="text" id="concInput" value="all ravens are black"></input> is 
   <button id="concTrue" onclick="setConc(false)">TRUE</button> / <button id="concFalse" onclick="setConc(true)">FALSE</button>
 </p>
 </div>
@@ -290,13 +290,6 @@
       Unknown.
     </u>
   </p>
-  <!--<table id="evaluationProperties">
-    <thead><tr><th>Property</th><th>Value</th></tr></thead>
-    <tbody>
-      <tr><td>Axioms form contradiction</td><td id="evaluationContradiction">Unknown</td></tr>
-      <tr><td>Argument is a tautology</td><td id="evaluationTautology">Unknown</td></tr>
-    </tbody>
-  </table>-->
 <div>
   <p>
     <button class="evaluate" onclick="updateEvaluation();">Evaluate!</button> 
